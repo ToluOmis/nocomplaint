@@ -1,0 +1,782 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NoComplaint - 21 Day No Complaint Challenge</title>
+  <!-- Манифест приложения -->
+  <link rel="manifest" href="manifest.json">
+  <!-- Цвет темы для адресной строки (Android) -->
+  <meta name="theme-color" content="#121212">
+  <style>
+    /* Global Styles */
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      text-align: center;
+      margin: 20px;
+      background-color: #121212;
+      color: #ffffff;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 20px;
+      border-radius: 8px;
+      background-color: #1e1e1e;
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+    }
+    h1, h2, h3 {
+      font-weight: bold;
+    }
+    button {
+      padding: 10px 20px;
+      margin: 10px;
+      font-size: 16px;
+      cursor: pointer;
+      border: none;
+      border-radius: 4px;
+      color: white;
+      transition: background-color 0.3s;
+      background-color: #4aa3d8;
+    }
+    button:hover:not(:disabled) {
+      opacity: 0.9;
+    }
+    button:disabled {
+      background-color: #555;
+      cursor: not-allowed;
+    }
+    /* Gradient progress bar */
+    #progressContainer {
+      width: 100%;
+      background: #333;
+      border-radius: 5px;
+      margin: 20px 0;
+      height: 25px;
+      overflow: hidden;
+    }
+    #progressBar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #76c7c0, #5ab8b0, #4aa3d8);
+      transition: width 1s linear;
+    }
+    .log {
+      margin-top: 20px;
+      text-align: left;
+      font-size: 14px;
+      padding: 15px;
+      background-color: #2a2a2a;
+      border-radius: 5px;
+    }
+    /* Category Selection */
+    .categories {
+      margin-top: 30px;
+      text-align: left;
+      display: none;
+      background-color: #2a2a2a;
+      padding: 15px;
+      border-radius: 5px;
+    }
+    .category-item {
+      margin-bottom: 10px;
+      padding: 10px;
+      border: 1px solid #444;
+      border-radius: 4px;
+    }
+    .category-item label {
+      cursor: pointer;
+    }
+    .submit-category {
+      text-align: center;
+      margin-top: 15px;
+    }
+    /* Definition Section */
+    .definition {
+      border-top: 1px solid #444;
+      padding-top: 20px;
+      margin-top: 20px;
+      text-align: left;
+    }
+    .definition h2 {
+      margin-bottom: 10px;
+    }
+    .example {
+      background-color: #2a2a2a;
+      padding: 15px;
+      border-radius: 5px;
+      margin-top: 15px;
+      text-align: left;
+    }
+    /* Timer Styles */
+    .timer-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-bottom: 15px;
+    }
+    #countdown {
+      font-weight: bold;
+      font-size: 32px;
+      color: #4aa3d8;
+    }
+    /* Notification */
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 15px;
+      background-color: #5ab8b0;
+      color: white;
+      border-radius: 5px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+      z-index: 1000;
+      display: none;
+    }
+    /* Category Stats */
+    .category-stats {
+      margin-top: 20px;
+      text-align: left;
+      background-color: #2a2a2a;
+      padding: 15px;
+      border-radius: 5px;
+    }
+    .category-stat {
+      display: flex;
+      justify-content: space-between;
+      padding: 5px 0;
+      border-bottom: 1px solid #444;
+    }
+    /* Journal Entry */
+    .journal-entry {
+      margin-top: 20px;
+      display: none;
+    }
+    .journal-entry textarea {
+      width: 100%;
+      height: 100px;
+      margin-top: 10px;
+      background-color: #2a2a2a;
+      color: #ffffff;
+      border: 1px solid #444;
+      border-radius: 5px;
+      padding: 10px;
+      resize: vertical;
+    }
+    .journal-history {
+      margin-top: 20px;
+      text-align: left;
+      background-color: #2a2a2a;
+      padding: 15px;
+      border-radius: 5px;
+      max-height: 200px;
+      overflow-y: auto;
+    }
+    .journal-entry-item {
+      border-bottom: 1px solid #444;
+      padding: 10px 0;
+    }
+    .journal-date {
+      font-size: 12px;
+      color: #888;
+    }
+    /* Media Queries */
+    @media (max-width: 650px) {
+      .container {
+        width: 90%;
+        padding: 15px;
+      }
+      button {
+        padding: 8px 15px;
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="notification" id="notification">
+    <p id="notificationText"></p>
+  </div>
+
+  <div class="container">
+    <h1>21 Day No Complaint Challenge</h1>
+    
+    <p id="statusMsg"><strong>Rule: </strong>Each time you make a complaint, press "restart," switch the ring you usually wear to the same finger on your opposite hand, choose the category for that complaint, and start again from day 0.</p>
+    
+    <!-- Progress Bar -->
+    <div id="progressContainer">
+      <div id="progressBar"></div>
+    </div>
+    
+    <!-- Buttons -->
+    <div>
+      <button id="startBtn">Start</button>
+      <button id="restartBtn" disabled>Complain & Restart</button>
+      <button id="resetBtn">Reset All</button>
+    </div>
+    
+    <!-- Log Section -->
+    <div class="log">
+      <p>Current streak: <span id="daysWithout">0</span> days</p>
+      <p>Best streak: <span id="bestStreak">0</span> days</p>
+      <p>Challenge started on: <span id="startDate">Not started yet</span></p>
+      <p>Complaints: <span id="restarts">0</span></p>
+      <p>Days with complaints: <span id="daysWithRestarts">0</span></p>
+      <p>Clean days: <span id="daysWithoutRestarts">0</span></p>
+      <div class="timer-container">
+        <span id="countdown">00:00:00</span>
+      </div>
+    </div>
+    
+    <!-- Categories Section -->
+    <div class="categories" id="categoriesContainer">
+      <h3>Select Complaint Category</h3>
+      <p id="categoryTimer">Time remaining to select: 3:00</p>
+      
+      <div class="category-item">
+        <input type="checkbox" class="category-checkbox" id="category_interpersonal" data-category="interpersonal">
+        <label for="category_interpersonal"><strong>Interpersonal Interactions:</strong> Feeling disrespected, ignored, or treated unfairly by others</label>
+      </div>
+      
+      <div class="category-item">
+        <input type="checkbox" class="category-checkbox" id="category_delays" data-category="delays">
+        <label for="category_delays"><strong>Delays & Timeliness:</strong> Frustration with waiting in traffic, lines, or for responses</label>
+      </div>
+      
+      <div class="category-item">
+        <input type="checkbox" class="category-checkbox" id="category_quality" data-category="quality">
+        <label for="category_quality"><strong>Quality & Reliability:</strong> Poorly made products, services falling short of expectations</label>
+      </div>
+      
+      <div class="category-item">
+        <input type="checkbox" class="category-checkbox" id="category_pricing" data-category="pricing">
+        <label for="category_pricing"><strong>Pricing & Value:</strong> Cost issues or feeling time/effort isn't adequately respected</label>
+      </div>
+      
+      <div class="category-item">
+        <input type="checkbox" class="category-checkbox" id="category_communication" data-category="communication">
+        <label for="category_communication"><strong>Communication Issues:</strong> Misunderstandings, unclear instructions, lack of updates</label>
+      </div>
+      
+      <div class="category-item">
+        <input type="checkbox" class="category-checkbox" id="category_process" data-category="process">
+        <label for="category_process"><strong>Process & Accessibility:</strong> Complicated systems or inaccessible services</label>
+      </div>
+      
+      <div class="category-item">
+        <input type="checkbox" class="category-checkbox" id="category_emotional" data-category="emotional">
+        <label for="category_emotional"><strong>Emotional & Relational Dynamics:</strong> Unmet expectations, lack of support in relationships</label>
+      </div>
+      
+      <div class="category-item">
+        <input type="checkbox" class="category-checkbox" id="category_other" data-category="other">
+        <label for="category_other"><strong>Other:</strong> Any complaint that doesn't fit the categories above</label>
+      </div>
+      
+      <div class="submit-category">
+        <button id="submitCategoryBtn">Submit Category</button>
+      </div>
+    </div>
+    
+    <!-- Journal Entry -->
+    <div class="journal-entry" id="journalEntryContainer">
+      <h3>Journal Entry (Optional)</h3>
+      <p>Reflect on what happened and how you could reframe it positively:</p>
+      <textarea id="journalText" placeholder="What happened? How could you have reframed this situation?"></textarea>
+      <div class="submit-category">
+        <button id="submitJournalBtn">Save Journal Entry</button>
+      </div>
+    </div>
+    
+    <!-- Journal History -->
+    <div class="journal-history" id="journalHistory">
+      <h3>Journal History</h3>
+      <div id="journalEntriesList">
+        <!-- Journal entries will be added here -->
+      </div>
+    </div>
+    
+    <!-- Category Statistics -->
+    <div class="category-stats" id="categoryStats">
+      <h3>Complaint Categories Breakdown</h3>
+      <div id="categoryStatsList">
+        <!-- Categories will be populated by JavaScript -->
+      </div>
+    </div>
+    
+    <!-- Definition Section -->
+    <div class="definition">
+      <h2>My Definition of complaint</h2>
+      <p>Describing an event or person in thoughts or speech negatively without indicating next steps to fix the problem. If you think or say a complaint, then propose a solution immediately or reframe it in an action way. This way, it is not a complaint; it is simply stating a problem and then attempting to find a solution.</p>
+      
+      <div class="example">
+        <p><strong>Example of complaint:</strong> "Customer service took forever to respond to my problem, and it really messed up my work!"</p>
+        <p><strong>Reframing:</strong> "I experienced a delay with customer support which disrupted my work. I plan to follow up with them and, if needed, explore alternative support channels to resolve issues more promptly in the future."</p>
+      </div>
+    </div>
+    
+  </div>
+
+  <!-- Регистрация Service Worker для PWA -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        navigator.serviceWorker.register('service-worker.js')
+          .then(function(registration) {
+            console.log('ServiceWorker registration successful with scope: ', registration.scope);
+          }, function(err) {
+            console.log('ServiceWorker registration failed: ', err);
+          });
+      });
+    }
+  </script>
+  <script>
+    // Main app state
+    const appState = {
+      isStarted: false,
+      startDate: null,
+      currentStreak: 0,
+      bestStreak: 0,
+      restarts: 0,
+      daysWithRestarts: 0,
+      daysWithoutRestarts: 0,
+      lastCheckDate: null,
+      lastStartRestartTime: null, // Track when the timer started or was restarted
+      categories: {
+        interpersonal: 0,
+        delays: 0,
+        quality: 0,
+        pricing: 0,
+        communication: 0,
+        process: 0,
+        emotional: 0,
+        other: 0
+      },
+      journalEntries: []
+    };
+    
+    // DOM elements
+    const elements = {
+      startBtn: document.getElementById('startBtn'),
+      restartBtn: document.getElementById('restartBtn'),
+      resetBtn: document.getElementById('resetBtn'),
+      statusMsg: document.getElementById('statusMsg'),
+      progressBar: document.getElementById('progressBar'),
+      daysWithout: document.getElementById('daysWithout'),
+      bestStreak: document.getElementById('bestStreak'),
+      startDate: document.getElementById('startDate'),
+      restarts: document.getElementById('restarts'),
+      daysWithRestarts: document.getElementById('daysWithRestarts'),
+      daysWithoutRestarts: document.getElementById('daysWithoutRestarts'),
+      countdown: document.getElementById('countdown'),
+      categoriesContainer: document.getElementById('categoriesContainer'),
+      categoryCheckboxes: document.querySelectorAll('.category-checkbox'),
+      submitCategoryBtn: document.getElementById('submitCategoryBtn'),
+      categoryStatsList: document.getElementById('categoryStatsList'),
+      notification: document.getElementById('notification'),
+      categoryTimer: document.getElementById('categoryTimer'),
+      journalEntryContainer: document.getElementById('journalEntryContainer'),
+      journalText: document.getElementById('journalText'),
+      submitJournalBtn: document.getElementById('submitJournalBtn'),
+      journalEntriesList: document.getElementById('journalEntriesList')
+    };
+    
+    // Variables for timers
+    let countdownInterval;
+    let categorySelectionTimer;
+    let categorySelectionTimeLeft = 180; // 3 minutes in seconds
+    
+    // Load saved state from localStorage
+    function loadState() {
+      const savedState = localStorage.getItem('noComplaintChallenge');
+      if (savedState) {
+        const parsedState = JSON.parse(savedState);
+        Object.assign(appState, parsedState);
+        
+        // Check if challenge is started
+        if (appState.isStarted) {
+          elements.startBtn.disabled = true;
+          elements.restartBtn.disabled = false;
+          updateDisplay();
+          startElapsedTimer();
+        }
+      }
+    }
+    
+    // Save state to localStorage
+    function saveState() {
+      localStorage.setItem('noComplaintChallenge', JSON.stringify(appState));
+    }
+    
+    // Start the challenge
+    function startChallenge() {
+      appState.isStarted = true;
+      appState.startDate = new Date().toLocaleDateString();
+      appState.lastCheckDate = new Date().toISOString();
+      appState.lastStartRestartTime = new Date().getTime(); // Record start time
+      
+      elements.startBtn.disabled = true;
+      elements.restartBtn.disabled = false;
+      
+      updateDisplay();
+      startElapsedTimer();
+      saveState();
+    }
+    
+    // Handle complaint & restart
+    function handleComplaint() {
+      showCategorySelection();
+    }
+    
+    // Show category selection
+    function showCategorySelection() {
+      elements.categoriesContainer.style.display = 'block';
+      resetCategorySelection();
+      startCategorySelectionTimer();
+    }
+    
+    // Hide category selection
+    function hideCategorySelection() {
+      elements.categoriesContainer.style.display = 'none';
+      clearInterval(categorySelectionTimer);
+    }
+    
+    // Reset category checkboxes
+    function resetCategorySelection() {
+      elements.categoryCheckboxes.forEach(checkbox => {
+        checkbox.checked = false;
+      });
+    }
+    
+    // Start category selection timer
+    function startCategorySelectionTimer() {
+      categorySelectionTimeLeft = 180; // 3 minutes
+      updateCategoryTimer();
+      
+      categorySelectionTimer = setInterval(() => {
+        categorySelectionTimeLeft--;
+        updateCategoryTimer();
+        
+        if (categorySelectionTimeLeft <= 0) {
+          clearInterval(categorySelectionTimer);
+          hideCategorySelection();
+        }
+      }, 1000);
+    }
+    
+    // Update category timer display
+    function updateCategoryTimer() {
+      const minutes = Math.floor(categorySelectionTimeLeft / 60);
+      const seconds = categorySelectionTimeLeft % 60;
+      elements.categoryTimer.textContent = `Time remaining to select: ${minutes}:${seconds.toString().padStart(2, '0')}`;
+    }
+    
+    // Submit category selection
+    function submitCategorySelection() {
+      const selectedCategories = [];
+      
+      elements.categoryCheckboxes.forEach(checkbox => {
+        if (checkbox.checked) {
+          const category = checkbox.dataset.category;
+          selectedCategories.push(category);
+          appState.categories[category]++;
+        }
+      });
+      
+      if (selectedCategories.length === 0) {
+        // If no category selected, default to "other"
+        appState.categories.other++;
+      }
+      
+      hideCategorySelection();
+      appState.restarts++;
+      appState.daysWithRestarts = calculateUniqueDays(appState.daysWithRestarts, new Date());
+      
+      // Reset streak and timer
+      if (appState.currentStreak > 0) {
+        if (appState.currentStreak > appState.bestStreak) {
+          appState.bestStreak = appState.currentStreak;
+        }
+        appState.currentStreak = 0;
+      }
+      
+      // Reset the timer start time to now
+      appState.lastStartRestartTime = new Date().getTime();
+      
+      updateDisplay();
+      saveState();
+      showJournalEntry();
+      
+      // Restart the elapsed timer
+      if (countdownInterval) {
+        clearInterval(countdownInterval);
+      }
+      startElapsedTimer();
+    }
+    
+    // Show journal entry
+    function showJournalEntry() {
+      elements.journalEntryContainer.style.display = 'block';
+      elements.journalText.value = '';
+      elements.journalText.focus();
+    }
+    
+    // Hide journal entry
+    function hideJournalEntry() {
+      elements.journalEntryContainer.style.display = 'none';
+    }
+    
+    // Submit journal entry
+    function submitJournalEntry() {
+      const text = elements.journalText.value.trim();
+      
+      if (text) {
+        const entry = {
+          date: new Date().toISOString(),
+          text: text,
+          categories: getSelectedCategories()
+        };
+        
+        appState.journalEntries.unshift(entry);
+        updateJournalDisplay();
+        saveState();
+      }
+      
+      hideJournalEntry();
+    }
+    
+    // Get selected categories
+    function getSelectedCategories() {
+      const selected = [];
+      
+      elements.categoryCheckboxes.forEach(checkbox => {
+        if (checkbox.checked) {
+          selected.push(checkbox.dataset.category);
+        }
+      });
+      
+      return selected.length > 0 ? selected : ['other'];
+    }
+    
+    // Update journal display
+    function updateJournalDisplay() {
+      elements.journalEntriesList.innerHTML = '';
+      
+      appState.journalEntries.slice(0, 10).forEach(entry => {
+        const date = new Date(entry.date);
+        const formattedDate = date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
+        
+        const entryElement = document.createElement('div');
+        entryElement.className = 'journal-entry-item';
+        entryElement.innerHTML = `
+          <div class="journal-date">${formattedDate}</div>
+          <div>${entry.text}</div>
+        `;
+        
+        elements.journalEntriesList.appendChild(entryElement);
+      });
+    }
+    
+    // Reset everything
+    function resetChallenge() {
+      if (confirm('Are you sure you want to reset the challenge? All progress will be lost.')) {
+        clearInterval(countdownInterval);
+        
+        // Reset state
+        appState.isStarted = false;
+        appState.startDate = null;
+        appState.currentStreak = 0;
+        appState.bestStreak = 0;
+        appState.restarts = 0;
+        appState.daysWithRestarts = 0;
+        appState.daysWithoutRestarts = 0;
+        appState.lastCheckDate = null;
+        appState.lastStartRestartTime = null;
+        
+        // Reset categories
+        Object.keys(appState.categories).forEach(key => {
+          appState.categories[key] = 0;
+        });
+        
+        // Clear journal entries
+        appState.journalEntries = [];
+        
+        // Update UI
+        elements.startBtn.disabled = false;
+        elements.restartBtn.disabled = true;
+        elements.progressBar.style.width = '0%';
+        elements.countdown.textContent = '00:00:00';
+        
+        updateDisplay();
+        saveState();
+        
+        hideCategorySelection();
+        hideJournalEntry();
+      }
+    }
+    
+    // Start elapsed timer
+    function startElapsedTimer() {
+      if (countdownInterval) {
+        clearInterval(countdownInterval);
+      }
+      
+      updateElapsedTime();
+      
+      countdownInterval = setInterval(() => {
+        updateElapsedTime();
+        checkProgressAndUpdate();
+      }, 1000);
+    }
+    
+    // Update elapsed time display
+    function updateElapsedTime() {
+      if (!appState.lastStartRestartTime) return;
+      
+      const now = new Date().getTime();
+      const elapsed = now - appState.lastStartRestartTime;
+      
+      // Calculate elapsed time
+      const totalSeconds = Math.floor(elapsed / 1000);
+      const hours = Math.floor(totalSeconds / 3600);
+      const minutes = Math.floor((totalSeconds % 3600) / 60);
+      const seconds = totalSeconds % 60;
+      
+      elements.countdown.textContent = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+      
+      // Check if a new day has passed based on elapsed time
+      const daysPassed = Math.floor(elapsed / (1000 * 60 * 60 * 24));
+      if (daysPassed > appState.currentStreak) {
+        // Update streak for each day passed
+        for (let i = appState.currentStreak; i < daysPassed; i++) {
+          appState.currentStreak++;
+          appState.daysWithoutRestarts++;
+          
+          if (appState.currentStreak > appState.bestStreak) {
+            appState.bestStreak = appState.currentStreak;
+          }
+          
+          // Update display with each day increment
+          updateDisplay();
+          
+          if (appState.currentStreak === 21) {
+            alert('Congratulations! You have completed the 21-day challenge!');
+          }
+        }
+        
+        saveState();
+      }
+    }
+    
+    // Check progress and update
+    function checkProgressAndUpdate() {
+      const lastCheckDate = new Date(appState.lastCheckDate);
+      const now = new Date();
+      
+      if (lastCheckDate.toDateString() !== now.toDateString()) {
+        // It's a new day (this is now just for date-based tracking)
+        appState.lastCheckDate = now.toISOString();
+        saveState();
+      }
+      
+      // Update progress bar
+      const progress = Math.min(appState.currentStreak / 21 * 100, 100);
+      elements.progressBar.style.width = `${progress}%`;
+    }
+    
+    // Calculate unique days
+    function calculateUniqueDays(currentCount, date) {
+      // Simple approach: increment the counter
+      // In a more complex app, we might want to track actual dates
+      return currentCount + 1;
+    }
+    
+    // Update display
+    function updateDisplay() {
+      elements.daysWithout.textContent = appState.currentStreak;
+      elements.bestStreak.textContent = appState.bestStreak;
+      elements.startDate.textContent = appState.startDate || 'Not started yet';
+      elements.restarts.textContent = appState.restarts;
+      elements.daysWithRestarts.textContent = appState.daysWithRestarts;
+      elements.daysWithoutRestarts.textContent = appState.daysWithoutRestarts;
+      
+      updateCategoryStats();
+      updateJournalDisplay();
+      
+      // Update progress bar
+      const progress = Math.min(appState.currentStreak / 21 * 100, 100);
+      elements.progressBar.style.width = `${progress}%`;
+    }
+    
+    // Update category stats
+    function updateCategoryStats() {
+      elements.categoryStatsList.innerHTML = '';
+      
+      // Sort categories by count in descending order
+      const sortedCategories = Object.entries(appState.categories)
+        .sort((a, b) => b[1] - a[1]);
+      
+      sortedCategories.forEach(([category, count]) => {
+        let categoryName = '';
+        
+        switch(category) {
+          case 'interpersonal':
+            categoryName = 'Interpersonal Interactions';
+            break;
+          case 'delays':
+            categoryName = 'Delays & Timeliness';
+            break;
+          case 'quality':
+            categoryName = 'Quality & Reliability';
+            break;
+          case 'pricing':
+            categoryName = 'Pricing & Value';
+            break;
+          case 'communication':
+            categoryName = 'Communication Issues';
+            break;
+          case 'process':
+            categoryName = 'Process & Accessibility';
+            break;
+          case 'emotional':
+            categoryName = 'Emotional & Relational Dynamics';
+            break;
+          case 'other':
+            categoryName = 'Other';
+            break;
+        }
+        
+        const statElement = document.createElement('div');
+        statElement.className = 'category-stat';
+        statElement.innerHTML = `
+          <span>${categoryName}</span>
+          <span>${count}</span>
+        `;
+        
+        elements.categoryStatsList.appendChild(statElement);
+      });
+    }
+    
+    // Event listeners
+    elements.startBtn.addEventListener('click', startChallenge);
+    elements.restartBtn.addEventListener('click', handleComplaint);
+    elements.resetBtn.addEventListener('click', resetChallenge);
+    elements.submitCategoryBtn.addEventListener('click', submitCategorySelection);
+    elements.submitJournalBtn.addEventListener('click', submitJournalEntry);
+    
+    // Initialize the app
+    function init() {
+      loadState();
+      updateDisplay();
+      
+      // Start the elapsed timer if challenge is active
+      if (appState.isStarted && appState.lastStartRestartTime) {
+        startElapsedTimer();
+      }
+    }
+    
+    // Start the app
+    init();
+  </script>
+</body>
+</html>
