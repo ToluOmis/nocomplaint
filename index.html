@@ -1,1175 +1,665 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>21-Day Challenge</title>
+// Main app state
+const appState = {
+  isStarted: false,
+  startDate: null,
   
-  <!-- Google Fonts -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+  // Complaint tracking
+  complaintStreak: 0,
+  bestComplaintStreak: 0,
+  totalComplaints: 0,
+  lastComplaintTime: null,
   
-  <!-- PWA Manifest -->
-  <link rel="manifest" href="manifest.json">
+  // Excuse tracking
+  excuseStreak: 0,
+  bestExcuseStreak: 0,
+  totalExcuses: 0,
+  lastExcuseTime: null,
   
-  <!-- Theme Color -->
-  <meta name="theme-color" content="#1a237e">
+  // Common tracking
+  cleanDays: 0,
+  lastCheckDate: null,
   
-  <!-- App Icons -->
-  <link rel="icon" href="icons/favicon.ico" type="image/x-icon">
-  <link rel="apple-touch-icon" href="icons/icon-192x192.png">
-  <link rel="apple-touch-icon" sizes="152x152" href="icons/icon-152x152.png">
-  <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-192x192.png">
-  <link rel="apple-touch-icon" sizes="167x167" href="icons/icon-152x152.png">
+  // Categories
+  complaintCategories: {
+    interpersonal: 0,
+    delays: 0,
+    quality: 0,
+    pricing: 0,
+    communication: 0,
+    process: 0,
+    emotional: 0,
+    other: 0
+  },
   
-  <!-- iOS status bar style -->
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  excuseCategories: {
+    blame: 0,
+    trauma: 0,
+    control: 0,
+    accountability: 0,
+    other: 0
+  },
   
-  <style>
-    /* Global Reset & Basic Styles */
-    *, *::before, *::after {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-    
-    :root {
-      /* Color Palette */
-      --deep-blue: #1a237e;
-      --light-blue: #3949ab;
-      --neon-blue: #00e5ff;
-      --white: #ffffff;
-      --light-gray: #f5f5f5;
-      --mid-gray: #e0e0e0;
-      --dark-gray: #424242;
-      
-      /* Typography */
-      --font-primary: 'Montserrat', sans-serif;
-      
-      /* Spacing */
-      --space-xs: 8px;
-      --space-sm: 16px;
-      --space-md: 24px;
-      --space-lg: 32px;
-      --space-xl: 48px;
-      
-      /* Border Radius */
-      --radius-sm: 8px;
-      --radius-md: 12px;
-      --radius-lg: 20px;
-      
-      /* Shadows */
-      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.1);
-      --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.15);
-      --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.2);
-      
-      /* Animation */
-      --transition-fast: 0.2s ease;
-      --transition-normal: 0.3s ease;
-      --transition-slow: 0.5s ease;
-    }
-    
-    body {
-      font-family: var(--font-primary);
-      background: linear-gradient(135deg, #0a1128, #1a237e);
-      color: var(--dark-gray);
-      min-height: 100vh;
-      font-size: 16px;
-      line-height: 1.5;
-      padding: var(--space-md);
-      overflow-x: hidden;
-    }
-    
-    /* Main Container */
-    .app-container {
-      max-width: 1200px;
-      margin: 0 auto;
-      background-color: var(--white);
-      border-radius: var(--radius-lg);
-      box-shadow: var(--shadow-lg);
-      overflow: hidden;
-      position: relative;
-    }
-    
-    /* Header Section */
-    .app-header {
-      background: linear-gradient(135deg, var(--light-blue), var(--deep-blue));
-      padding: var(--space-md) var(--space-lg);
-      position: relative;
-      overflow: hidden;
-    }
-    
-    /* Isometric Background Elements */
-    .isometric-bg {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 0;
-      opacity: 0.1;
-    }
-    
-    .iso-shape {
-      position: absolute;
-      background: var(--white);
-      transform: rotateX(60deg) rotateZ(45deg);
-    }
-    
-    .iso-cube-1 {
-      width: 100px;
-      height: 100px;
-      right: 10%;
-      top: -20px;
-    }
-    
-    .iso-cube-2 {
-      width: 60px;
-      height: 60px;
-      left: 15%;
-      bottom: -10px;
-    }
-    
-    .iso-rect-1 {
-      width: 80px;
-      height: 40px;
-      left: 30%;
-      top: 20px;
-    }
-    
-    /* Header Content */
-    .header-content {
-      position: relative;
-      z-index: 1;
-    }
-    
-    .tagline {
-      color: var(--white);
-      font-size: 1.2rem;
-      font-weight: 500;
-      margin-bottom: var(--space-sm);
-      line-height: 1.6;
-      text-align: center;
-    }
-    
-    .tagline span {
-      display: block;
-    }
-    
-    .rule-text {
-      color: var(--white);
-      font-size: 0.95rem;
-      background: rgba(255, 255, 255, 0.1);
-      padding: var(--space-sm);
-      border-radius: var(--radius-sm);
-      margin-top: var(--space-sm);
-    }
-    
-    /* Progress Section */
-    .progress-container {
-      background: rgba(255, 255, 255, 0.2);
-      border-radius: var(--radius-lg);
-      height: 12px;
-      margin: var(--space-md) 0;
-      overflow: hidden;
-      position: relative;
-    }
-    
-    .progress-bar {
-      height: 100%;
-      width: 0%;
-      background: linear-gradient(90deg, var(--neon-blue), #64ffda);
-      border-radius: var(--radius-lg);
-      transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
-      position: relative;
-    }
-    
-    .progress-bar::after {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: linear-gradient(90deg, rgba(255,255,255,0.1), rgba(255,255,255,0.3), rgba(255,255,255,0.1));
-      background-size: 200% 100%;
-      animation: shimmer 2s infinite;
-      border-radius: var(--radius-lg);
-    }
-    
-    @keyframes shimmer {
-      0% { background-position: 100% 0; }
-      100% { background-position: -100% 0; }
-    }
-    
-    .progress-count {
-      position: absolute;
-      top: -20px;
-      left: 50%;
-      transform: translateX(-50%);
-      color: var(--white);
-      font-weight: 600;
-      font-size: 0.9rem;
-    }
-    
-    /* Button Group */
-    .button-group {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: var(--space-sm);
-      margin-top: var(--space-md);
-    }
-    
-    .btn {
-      padding: 12px 24px;
-      font-family: var(--font-primary);
-      font-size: 1rem;
-      font-weight: 600;
-      cursor: pointer;
-      border: none;
-      border-radius: var(--radius-md);
-      transition: all var(--transition-normal);
-      box-shadow: var(--shadow-sm);
-      position: relative;
-      overflow: hidden;
-      z-index: 1;
-    }
-    
-    .btn::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(255, 255, 255, 0.1);
-      transform: translateY(100%);
-      transition: transform var(--transition-normal);
-      z-index: -1;
-    }
-    
-    .btn:hover::before {
-      transform: translateY(0);
-    }
-    
-    .btn-primary {
-      background: linear-gradient(135deg, var(--light-blue), var(--deep-blue));
-      color: var(--white);
-    }
-    
-    .btn-secondary {
-      background: rgba(255, 255, 255, 0.15);
-      backdrop-filter: blur(10px);
-      color: var(--white);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-    }
-    
-    .btn-danger {
-      background: linear-gradient(135deg, #f44336, #d32f2f);
-      color: var(--white);
-    }
-    
-    .btn-accent {
-      background: linear-gradient(135deg, var(--neon-blue), #64ffda);
-      color: var(--deep-blue);
-    }
-    
-    .btn:disabled {
-      opacity: 0.6;
-      cursor: not-allowed;
-    }
-    
-    .btn:disabled::before {
-      display: none;
-    }
-    
-    /* Main Content */
-    .main-content {
-      display: flex;
-      flex-wrap: wrap;
-      padding: var(--space-md);
-      gap: var(--space-md);
-    }
-    
-    .content-left {
-      flex: 1;
-      min-width: 300px;
-    }
-    
-    .content-right {
-      width: 320px;
-    }
-    
-    /* Timer Section */
-    .timer-section {
-      display: flex;
-      gap: var(--space-md);
-      margin-bottom: var(--space-md);
-    }
-    
-    .timer-card {
-      flex: 1;
-      background: linear-gradient(135deg, var(--white), var(--light-gray));
-      border-radius: var(--radius-md);
-      padding: var(--space-md);
-      box-shadow: var(--shadow-md);
-      position: relative;
-      overflow: hidden;
-      transition: transform var(--transition-normal);
-    }
-    
-    .timer-card:hover {
-      transform: translateY(-5px);
-    }
-    
-    .timer-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 5px;
-      background: linear-gradient(90deg, var(--neon-blue), #64ffda);
-    }
-    
-    .timer-title {
-      color: var(--light-blue);
-      font-size: 1rem;
-      font-weight: 600;
-      margin-bottom: var(--space-xs);
-    }
-    
-    .timer-display {
-      font-size: 1.8rem;
-      font-weight: 700;
-      color: var(--deep-blue);
-      margin-top: var(--space-xs);
-      font-variant-numeric: tabular-nums;
-    }
-    
-    /* Stats Section */
-    .stats-row {
-      display: flex;
-      gap: var(--space-md);
-      margin-bottom: var(--space-md);
-    }
-    
-    .stats-card {
-      flex: 1;
-      background: linear-gradient(135deg, var(--white), var(--light-gray));
-      border-radius: var(--radius-md);
-      box-shadow: var(--shadow-md);
-      overflow: hidden;
-      transition: transform var(--transition-normal);
-    }
-    
-    .stats-card:hover {
-      transform: translateY(-5px);
-    }
-    
-    .stats-header {
-      background: linear-gradient(135deg, var(--light-blue), var(--deep-blue));
-      padding: var(--space-sm);
-      color: var(--white);
-      font-weight: 600;
-      text-align: center;
-      font-size: 1.1rem;
-    }
-    
-    .stats-body {
-      padding: var(--space-sm);
-    }
-    
-    .stat-item {
-      padding: var(--space-sm) 0;
-      border-bottom: 1px solid var(--mid-gray);
-    }
-    
-    .stat-item:last-child {
-      border-bottom: none;
-    }
-    
-    .stat-value {
-      font-size: 1.6rem;
-      font-weight: 700;
-      color: var(--deep-blue);
-      display: block;
-      font-variant-numeric: tabular-nums;
-    }
-    
-    .stat-label {
-      font-size: 0.85rem;
-      color: var(--dark-gray);
-    }
-    
-    /* Info Section */
-    .info-section {
-      background: linear-gradient(135deg, var(--white), var(--light-gray));
-      border-radius: var(--radius-md);
-      padding: var(--space-md);
-      margin-bottom: var(--space-md);
-      box-shadow: var(--shadow-md);
-    }
-    
-    .info-title {
-      color: var(--deep-blue);
-      font-size: 1.2rem;
-      font-weight: 600;
-      margin-bottom: var(--space-sm);
-      border-bottom: 2px solid var(--neon-blue);
-      padding-bottom: var(--space-xs);
-      display: inline-block;
-    }
-    
-    .info-text {
-      color: var(--dark-gray);
-      margin-bottom: var(--space-sm);
-    }
-    
-    /* Categories Section */
-    .categories {
-      background: linear-gradient(135deg, var(--white), var(--light-gray));
-      border-radius: var(--radius-md);
-      padding: var(--space-md);
-      margin-top: var(--space-md);
-      box-shadow: var(--shadow-md);
-      display: none;
-    }
-    
-    .categories-title {
-      color: var(--deep-blue);
-      font-size: 1.2rem;
-      font-weight: 600;
-      margin-bottom: var(--space-md);
-    }
-    
-    .categories-timer {
-      font-size: 0.9rem;
-      color: var(--light-blue);
-      margin-bottom: var(--space-md);
-      font-weight: 500;
-    }
-    
-    .category-item {
-      background: var(--white);
-      border-radius: var(--radius-sm);
-      padding: var(--space-sm);
-      margin-bottom: var(--space-sm);
-      border: 1px solid var(--mid-gray);
-      transition: all var(--transition-fast);
-    }
-    
-    .category-item:hover {
-      box-shadow: var(--shadow-sm);
-      border-color: var(--light-blue);
-    }
-    
-    .category-item label {
-      display: flex;
-      align-items: flex-start;
-      cursor: pointer;
-    }
-    
-    .category-item input[type="checkbox"] {
-      margin-right: var(--space-sm);
-      margin-top: 4px;
-      accent-color: var(--light-blue);
-      width: 18px;
-      height: 18px;
-    }
-    
-    .category-label {
-      font-weight: 600;
-      color: var(--deep-blue);
-    }
-    
-    .category-description {
-      margin-top: var(--space-xs);
-      margin-left: calc(18px + var(--space-sm));
-      font-size: 0.85rem;
-      color: var(--dark-gray);
-    }
-    
-    .submit-category {
-      margin-top: var(--space-md);
-      text-align: center;
-    }
-    
-    /* Definition Section */
-    .definition {
-      background: linear-gradient(135deg, var(--white), var(--light-gray));
-      border-radius: var(--radius-md);
-      padding: var(--space-md);
-      margin-top: var(--space-md);
-      box-shadow: var(--shadow-md);
-    }
-    
-    .definition-title {
-      color: var(--deep-blue);
-      font-size: 1.2rem;
-      font-weight: 600;
-      margin-bottom: var(--space-sm);
-      border-bottom: 2px solid var(--neon-blue);
-      padding-bottom: var(--space-xs);
-      display: inline-block;
-    }
-    
-    .definition-text {
-      margin-bottom: var(--space-md);
-    }
-    
-    .example {
-      background: var(--white);
-      border-radius: var(--radius-sm);
-      padding: var(--space-md);
-      margin-bottom: var(--space-md);
-      border-left: 4px solid var(--light-blue);
-    }
-    
-    .example-label {
-      font-weight: 600;
-      color: var(--deep-blue);
-      margin-bottom: var(--space-xs);
-    }
-    
-    .example-text {
-      margin-bottom: var(--space-sm);
-      font-style: italic;
-      color: var(--dark-gray);
-    }
-    
-    .reframe-label {
-      font-weight: 600;
-      color: var(--deep-blue);
-      margin-bottom: var(--space-xs);
-    }
-    
-    .reframe-text {
-      color: var(--dark-gray);
-    }
-    
-    /* Notification */
-    .notification {
-      position: fixed;
-      top: var(--space-md);
-      right: var(--space-md);
-      background: var(--deep-blue);
-      color: var(--white);
-      padding: var(--space-md);
-      border-radius: var(--radius-sm);
-      box-shadow: var(--shadow-lg);
-      max-width: 300px;
-      transform: translateX(calc(100% + var(--space-md)));
-      transition: transform var(--transition-normal);
-      z-index: 1000;
-    }
-    
-    .notification.show {
-      transform: translateX(0);
-    }
-    
-    .notification-close {
-      position: absolute;
-      top: var(--space-xs);
-      right: var(--space-xs);
-      background: none;
-      border: none;
-      color: var(--white);
-      cursor: pointer;
-      font-size: 1rem;
-    }
-    
-    /* Analysis Popup */
-    .overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(26, 35, 126, 0.8);
-      backdrop-filter: blur(5px);
-      display: none;
-      justify-content: center;
-      align-items: center;
-      z-index: 1000;
-    }
-    
-    .popup {
-      background: var(--white);
-      border-radius: var(--radius-lg);
-      width: 90%;
-      max-width: 800px;
-      max-height: 90vh;
-      overflow-y: auto;
-      box-shadow: var(--shadow-lg);
-      position: relative;
-    }
-    
-    .popup-header {
-      background: linear-gradient(135deg, var(--light-blue), var(--deep-blue));
-      padding: var(--space-md);
-      color: var(--white);
-      font-weight: 600;
-      font-size: 1.4rem;
-      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
-    }
-    
-    .popup-body {
-      padding: var(--space-md);
-    }
-    
-    .close-popup {
-      position: absolute;
-      top: var(--space-md);
-      right: var(--space-md);
-      background: rgba(255, 255, 255, 0.2);
-      border: none;
-      color: var(--white);
-      width: 30px;
-      height: 30px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      font-size: 1.2rem;
-      transition: background var(--transition-fast);
-    }
-    
-    .close-popup:hover {
-      background: rgba(255, 255, 255, 0.3);
-    }
-    
-    .tab-buttons {
-      display: flex;
-      border-bottom: 1px solid var(--mid-gray);
-      margin-bottom: var(--space-md);
-      overflow-x: auto;
-    }
-    
-    .tab-button {
-      padding: var(--space-sm) var(--space-md);
-      background: none;
-      border: none;
-      color: var(--dark-gray);
-      font-weight: 500;
-      cursor: pointer;
-      position: relative;
-      white-space: nowrap;
-    }
-    
-    .tab-button::after {
-      content: '';
-      position: absolute;
-      bottom: -1px;
-      left: 0;
-      width: 100%;
-      height: 3px;
-      background: var(--neon-blue);
-      transform: scaleX(0);
-      transition: transform var(--transition-fast);
-    }
-    
-    .tab-button.active {
-      color: var(--deep-blue);
-      font-weight: 600;
-    }
-    
-    .tab-button.active::after {
-      transform: scaleX(1);
-    }
-    
-    .tab-content {
-      display: none;
-    }
-    
-    .tab-content.active {
-      display: block;
-    }
-    
-    .chart-container {
-      height: 300px;
-      background: var(--light-gray);
-      border-radius: var(--radius-sm);
-      margin: var(--space-sm) 0;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--dark-gray);
-    }
-    
-    /* For smaller screens */
-    @media (max-width: 768px) {
-      .app-container {
-        border-radius: 0;
-      }
-      
-      .main-content {
-        flex-direction: column;
-      }
-      
-      .content-right {
-        width: 100%;
-      }
-      
-      .timer-section,
-      .stats-row {
-        flex-direction: column;
-      }
-      
-      .btn {
-        width: 100%;
-      }
-      
-      .button-group {
-        flex-direction: column;
-      }
-    }
-    
-    /* Animation Keyframes */
-    @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
-    }
-    
-    @keyframes slideUp {
-      from { transform: translateY(20px); opacity: 0; }
-      to { transform: translateY(0); opacity: 1; }
-    }
-    
-    /* Apply animations */
-    .app-container {
-      animation: fadeIn 0.5s ease-out;
-    }
-    
-    .content-left, .content-right {
-      animation: slideUp 0.5s ease-out;
-    }
-    
-    .stats-card:nth-child(1) {
-      animation: slideUp 0.5s ease-out 0.1s forwards;
-    }
-    
-    .stats-card:nth-child(2) {
-      animation: slideUp 0.5s ease-out 0.2s forwards;
-    }
-  </style>
-</head>
-<body>
-  <!-- Notification -->
-  <div id="notification" class="notification">
-    <button id="notificationClose" class="notification-close">×</button>
-    <p id="notificationText"></p>
-  </div>
+  // Journal entries
+  journalEntries: []
+};
 
-  <!-- Main App Container -->
-  <div class="app-container">
-    <!-- Header Section -->
-    <header class="app-header">
-      <!-- Isometric Background -->
-      <div class="isometric-bg">
-        <div class="iso-shape iso-cube-1"></div>
-        <div class="iso-shape iso-cube-2"></div>
-        <div class="iso-shape iso-rect-1"></div>
-      </div>
-      
-      <!-- Header Content -->
-      <div class="header-content">
-        <p class="tagline">
-          <span>No One Likes a Complainer!</span>
-          <span>Try 21 days without complaining or making excuses</span>
-        </p>
-        
-        <p id="statusMsg" class="rule-text">
-          <strong>Rule: </strong>Each time you make a complaint or excuse, press the respective button and start again from day 0. To complete the challenge, you must go 21 consecutive days without complaints AND excuses.
-        </p>
-        
-        <!-- Progress Bar -->
-        <div class="progress-container">
-          <div id="combinedProgressBar" class="progress-bar"></div>
-          <div id="combinedProgressCount" class="progress-count">0/21</div>
-        </div>
-        
-        <!-- Action Buttons -->
-        <div class="button-group">
-          <button id="startBtn" class="btn btn-primary">Start Challenge</button>
-          <button id="complaintBtn" class="btn btn-secondary" disabled>Complaint</button>
-          <button id="excuseBtn" class="btn btn-secondary" disabled>Excuse</button>
-          <button id="analysisBtn" class="btn btn-accent" disabled>Analysis</button>
-          <button id="resetBtn" class="btn btn-danger">Reset All</button>
-        </div>
-      </div>
-    </header>
-    
-    <!-- Main Content -->
-    <main class="main-content">
-      <!-- Left Column (Timers & Stats) -->
-      <div class="content-left">
-        <!-- Timers -->
-        <div class="timer-section">
-          <div class="timer-card">
-            <h4 class="timer-title">Days Without Complaints</h4>
-            <div id="complaintCountdown" class="timer-display">00:00:00</div>
-          </div>
-          
-          <div class="timer-card">
-            <h4 class="timer-title">Days Without Excuses</h4>
-            <div id="excuseCountdown" class="timer-display">00:00:00</div>
-          </div>
-        </div>
-        
-        <!-- Stats Cards -->
-        <div class="stats-row">
-          <div class="stats-card">
-            <div class="stats-header">Complaints</div>
-            <div class="stats-body">
-              <div class="stat-item">
-                <span id="complaintStreak" class="stat-value">0</span>
-                <span class="stat-label">Current complaint-free streak</span>
-              </div>
-              
-              <div class="stat-item">
-                <span id="bestComplaintStreak" class="stat-value">0</span>
-                <span class="stat-label">Best complaint-free streak</span>
-              </div>
-              
-              <div class="stat-item">
-                <span id="totalComplaints" class="stat-value">0</span>
-                <span class="stat-label">Total complaints</span>
-              </div>
-            </div>
-          </div>
-          
-          <div class="stats-card">
-            <div class="stats-header">Excuses</div>
-            <div class="stats-body">
-              <div class="stat-item">
-                <span id="excuseStreak" class="stat-value">0</span>
-                <span class="stat-label">Current excuse-free streak</span>
-              </div>
-              
-              <div class="stat-item">
-                <span id="bestExcuseStreak" class="stat-value">0</span>
-                <span class="stat-label">Best excuse-free streak</span>
-              </div>
-              
-              <div class="stat-item">
-                <span id="totalExcuses" class="stat-value">0</span>
-                <span class="stat-label">Total excuses</span>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <!-- Challenge Info -->
-        <div class="info-section">
-          <p class="info-text">Challenge started on: <span id="startDate">Not started yet</span></p>
-          <p class="info-text">Clean days (no complaints or excuses): <span id="cleanDays">0</span></p>
-        </div>
-      </div>
-      
-      <!-- Definition Sections -->
-      <div class="content-right">
-        <div class="definition">
-          <h3 class="definition-title">My Definition of Complaint</h3>
-          <p class="definition-text">Describing an event or person in thoughts or speech negatively without indicating next steps to fix the problem. If you think or say a complaint, then propose a solution immediately or reframe it in an action way. This way, it is not a complaint; it is simply stating a problem and then attempting to find a solution.</p>
-          
-          <div class="example">
-            <p class="example-label">Example of complaint:</p>
-            <p class="example-text">"Customer service took forever to respond to my problem, and it really messed up my work!"</p>
-            <p class="reframe-label">Reframing:</p>
-            <p class="reframe-text">"I experienced a delay with customer support which disrupted my work. I plan to follow up with them and, if needed, explore alternative support channels to resolve issues more promptly in the future."</p>
-          </div>
-          
-          <h3 class="definition-title">My Definition of Excuse</h3>
-          <p class="definition-text">A justification that shifts responsibility away from yourself to explain a failure or inability to meet an obligation or expectation. An excuse removes your agency and power by placing the cause externally rather than acknowledging your choices and capacity to respond differently.</p>
-          
-          <div class="example">
-            <p class="example-label">Example of excuse:</p>
-            <p class="example-text">"Nothing I do matters because life is just unfair"</p>
-            <p class="reframe-label">Reframing:</p>
-            <p class="reframe-text">"While I can't control everything, I have the power to influence my actions and decisions, which can lead to positive change"</p>
-          </div>
-        </div>
-      </div>
-    </main>
-    
-    <!-- Categories Section for Complaints -->
-    <div class="categories" id="complaintCategoriesContainer">
-      <h3 class="categories-title">Select Complaint Category</h3>
-      <p id="complaintCategoryTimer" class="categories-timer">Time remaining to select: 3:00</p>
-      
-      <div class="category-item">
-        <label>
-          <input type="checkbox" class="category-checkbox" id="complaint_interpersonal" data-category="interpersonal">
-          <span class="category-label">Interpersonal Interactions</span>
-        </label>
-        <div class="category-description">Feeling disrespected, ignored, or treated unfairly by others</div>
-      </div>
-      
-      <div class="category-item">
-        <label>
-          <input type="checkbox" class="category-checkbox" id="complaint_delays" data-category="delays">
-          <span class="category-label">Delays & Timeliness</span>
-        </label>
-        <div class="category-description">Frustration with waiting in traffic, lines, or for responses</div>
-      </div>
-      
-      <div class="category-item">
-        <label>
-          <input type="checkbox" class="category-checkbox" id="complaint_quality" data-category="quality">
-          <span class="category-label">Quality & Reliability</span>
-        </label>
-        <div class="category-description">Poorly made products, services falling short of expectations</div>
-      </div>
-      
-      <div class="category-item">
-        <label>
-          <input type="checkbox" class="category-checkbox" id="complaint_pricing" data-category="pricing">
-          <span class="category-label">Pricing & Value</span>
-        </label>
-        <div class="category-description">Cost issues or feeling time/effort isn't adequately respected</div>
-      </div>
-      
-      <div class="category-item">
-        <label>
-          <input type="checkbox" class="category-checkbox" id="complaint_communication" data-category="communication">
-          <span class="category-label">Communication Issues</span>
-        </label>
-        <div class="category-description">Misunderstandings, unclear instructions, lack of updates</div>
-      </div>
-      
-      <div class="category-item">
-        <label>
-          <input type="checkbox" class="category-checkbox" id="complaint_process" data-category="process">
-          <span class="category-label">Process & Accessibility</span>
-        </label>
-        <div class="category-description">Complicated systems or inaccessible services</div>
-      </div>
-      
-      <div class="category-item">
-        <label>
-          <input type="checkbox" class="category-checkbox" id="complaint_emotional" data-category="emotional">
-          <span class="category-label">Emotional & Relational Dynamics</span>
-        </label>
-        <div class="category-description">Unmet expectations, lack of support in relationships</div>
-      </div>
-      
-      <div class="category-item">
-        <label>
-          <input type="checkbox" class="category-checkbox" id="complaint_other" data-category="other">
-          <span class="category-label">Other</span>
-        </label>
-        <div class="category-description">Any complaint that doesn't fit the categories above</div>
-      </div>
-      
-      <div class="submit-category">
-        <button id="submitComplaintCategoryBtn" class="btn btn-primary">Submit Category</button>
-      </div>
-    </div>
-    
-    <!-- Categories Section for Excuses -->
-    <div class="categories" id="excuseCategoriesContainer">
-      <h3 class="categories-title">Select Excuse Category</h3>
-      <p id="excuseCategoryTimer" class="categories-timer">Time remaining to select: 3:00</p>
-      
-      <div class="category-item">
-        <label>
-          <input type="checkbox" class="category-checkbox" id="excuse_blame" data-category="blame">
-          <span class="category-label">Externalizing Blame</span>
-        </label>
-        <div class="category-description">Focuses on attributing failures or setbacks solely to external circumstances or other people, rather than examining personal responsibility</div>
-      </div>
-      
-      <div class="category-item">
-        <label>
-          <input type="checkbox" class="category-checkbox" id="excuse_trauma" data-category="trauma">
-          <span class="category-label">Past Trauma Emphasis</span>
-        </label>
-        <div class="category-description">Centers on citing previous negative experiences or trauma as the main reason for current difficulties, potentially hindering proactive change</div>
-      </div>
-      
-      <div class="category-item">
-        <label>
-          <input type="checkbox" class="category-checkbox" id="excuse_control" data-category="control">
-          <span class="category-label">Perceived Lack of Control</span>
-        </label>
-        <div class="category-description">Involves the belief that one is powerless to influence outcomes, often using phrases like "I can't do anything about it" or "I'm just unlucky."</div>
-      </div>
-      
-      <div class="category-item">
-        <label>
-          <input type="checkbox" class="category-checkbox" id="excuse_accountability" data-category="accountability">
-          <span class="category-label">Avoidance of Accountability</span>
-        </label>
-        <div class="category-description">Represents a tendency to evade personal responsibility by continuously shifting blame, thus preventing self-assessment and growth</div>
-      </div>
-      
-      <div class="category-item">
-        <label>
-          <input type="checkbox" class="category-checkbox" id="excuse_other" data-category="other">
-          <span class="category-label">Other</span>
-        </label>
-        <div class="category-description">Any excuse that doesn't fit the categories above</div>
-      </div>
-      
-      <div class="submit-category">
-        <button id="submitExcuseCategoryBtn" class="btn btn-primary">Submit Category</button>
-      </div>
-    </div>
-    
-    <!-- Journal Entry -->
-    <div class="categories" id="journalEntryContainer">
-      <h3 class="categories-title">Journal Entry (Optional)</h3>
-      <p class="categories-timer">Reflect on what happened and how you could reframe it positively:</p>
-      <textarea id="journalText" placeholder="What happened? How could you have reframed this situation?" style="width: 100%; height: 120px; border-radius: 8px; padding: 12px; border: 1px solid #e0e0e0; margin: 16px 0; font-family: inherit;"></textarea>
-      <div class="submit-category">
-        <button id="submitJournalBtn" class="btn btn-primary">Save Journal Entry</button>
-      </div>
-    </div>
-    
-    <!-- Analysis Popup -->
-    <div class="overlay" id="analysisOverlay">
-      <div class="popup">
-        <div class="popup-header">
-          <h2>Challenge Analysis</h2>
-          <button id="closeAnalysis" class="close-popup">×</button>
-        </div>
-        
-        <div class="popup-body">
-          <div class="tab-buttons">
-            <button class="tab-button active" data-tab="categories">Categories</button>
-            <button class="tab-button" data-tab="timeOfDay">Time of Day</button>
-            <button class="tab-button" data-tab="streakProgress">Streak Progress</button>
-            <button class="tab-button" data-tab="insights">Insights</button>
-          </div>
-          
-          <!-- Categories Tab -->
-          <div id="categoriesTab" class="tab-content active">
-            <div class="analysis-section">
-              <h3>Complaint Categories</h3>
-              <div class="chart-container" id="complaintCategoriesChart">
-                Charts will appear after your first entries
-              </div>
-            </div>
-            
-            <div class="analysis-section">
-              <h3>Excuse Categories</h3>
-              <div class="chart-container" id="excuseCategoriesChart">
-                Charts will appear after your first entries
-              </div>
-            </div>
-          </div>
-          
-          <!-- Other tabs (similar structure) -->
-          <div id="timeOfDayTab" class="tab-content">
-            <div class="analysis-section">
-              <h3>When Complaints Occur</h3>
-              <div class="chart-container">
-                Charts will appear after your first entries
-              </div>
-            </div>
-            
-            <div class="analysis-section">
-              <h3>When Excuses Occur</h3>
-              <div class="chart-container">
-                Charts will appear after your first entries
-              </div>
-            </div>
-          </div>
-          
-          <div id="streakProgressTab" class="tab-content">
-            <div class="analysis-section">
-              <h3>Complaint-Free Streak History</h3>
-              <div class="chart-container">
-                Charts will appear after your first entries
-              </div>
-            </div>
-            
-            <div class="analysis-section">
-              <h3>Excuse-Free Streak History</h3>
-              <div class="chart-container">
-                Charts will appear after your first entries
-              </div>
-            </div>
-          </div>
-          
-          <div id="insightsTab" class="tab-content">
-            <div class="analysis-section">
-              <h3>Your Pattern Insights</h3>
-              <div class="info-section">
-                <p><strong>Most common complaint category:</strong> <span>Not enough data</span></p>
-                <p><strong>Most common excuse category:</strong> <span>Not enough data</span></p>
-                <p><strong>Typical time for complaints:</strong> <span>Not enough data</span></p>
-                <p><strong>Typical time for excuses:</strong> <span>Not enough data</span></p>
-                <p><strong>Improvement suggestion:</strong> <span>Start tracking to receive personalized insights</span></p>
-                <p><strong>Current challenge status:</strong> <span>Not started</span></p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
+// DOM elements
+const elements = {
+  // Buttons
+  startBtn: document.getElementById('startBtn'),
+  complaintBtn: document.getElementById('complaintBtn'),
+  excuseBtn: document.getElementById('excuseBtn'),
+  analysisBtn: document.getElementById('analysisBtn'),
+  resetBtn: document.getElementById('resetBtn'),
+  
+  // Progress bar
+  combinedProgressBar: document.getElementById('combinedProgressBar'),
+  combinedProgressCount: document.getElementById('combinedProgressCount'),
+  
+  // Stats
+  complaintStreak: document.getElementById('complaintStreak'),
+  excuseStreak: document.getElementById('excuseStreak'),
+  bestComplaintStreak: document.getElementById('bestComplaintStreak'),
+  bestExcuseStreak: document.getElementById('bestExcuseStreak'),
+  totalComplaints: document.getElementById('totalComplaints'),
+  totalExcuses: document.getElementById('totalExcuses'),
+  startDate: document.getElementById('startDate'),
+  cleanDays: document.getElementById('cleanDays'),
+  
+  // Timers
+  complaintCountdown: document.getElementById('complaintCountdown'),
+  excuseCountdown: document.getElementById('excuseCountdown'),
+  
+  // Categories
+  complaintCategoriesContainer: document.getElementById('complaintCategoriesContainer'),
+  excuseCategoriesContainer: document.getElementById('excuseCategoriesContainer'),
+  complaintCategoryCheckboxes: document.querySelectorAll('#complaintCategoriesContainer .category-checkbox'),
+  excuseCategoryCheckboxes: document.querySelectorAll('#excuseCategoriesContainer .category-checkbox'),
+  submitComplaintCategoryBtn: document.getElementById('submitComplaintCategoryBtn'),
+  submitExcuseCategoryBtn: document.getElementById('submitExcuseCategoryBtn'),
+  complaintCategoryTimer: document.getElementById('complaintCategoryTimer'),
+  excuseCategoryTimer: document.getElementById('excuseCategoryTimer'),
+  
+  // Journal
+  journalEntryContainer: document.getElementById('journalEntryContainer'),
+  journalText: document.getElementById('journalText'),
+  submitJournalBtn: document.getElementById('submitJournalBtn'),
+  
+  // Analysis popup
+  analysisOverlay: document.getElementById('analysisOverlay'),
+  closeAnalysis: document.getElementById('closeAnalysis'),
+  
+  // Notification
+  notification: document.getElementById('notification'),
+  notificationClose: document.getElementById('notificationClose'),
+  notificationText: document.getElementById('notificationText')
+};
 
-  <!-- JavaScript remains the same, just handling UI interactions -->
-  <script>
-    // Event listeners for UI interactions
-    document.addEventListener('DOMContentLoaded', function() {
-      // Example notification
-      setTimeout(() => {
-        showNotification("Welcome to your 21-day challenge! Ready to start?");
-      }, 1000);
+// Timer variables
+let complaintTimerInterval;
+let excuseTimerInterval;
+let complaintCategoryTimer;
+let excuseCategoryTimer;
+let categorySelectionTimeLeft = 180; // 3 minutes in seconds
+
+// Start the challenge
+function startChallenge() {
+  const now = new Date();
+  
+  appState.isStarted = true;
+  appState.startDate = now.toLocaleDateString();
+  appState.lastCheckDate = now.toISOString();
+  appState.lastComplaintTime = now.getTime();
+  appState.lastExcuseTime = now.getTime();
+  
+  // Update button states
+  elements.startBtn.disabled = true;
+  elements.complaintBtn.disabled = false;
+  elements.excuseBtn.disabled = false;
+  elements.analysisBtn.disabled = false;
+  
+  // Start timers
+  startComplaintTimer();
+  startExcuseTimer();
+  
+  // Update UI
+  updateDisplay();
+  
+  // Save state
+  saveState();
+  
+  // Show notification
+  showNotification('Challenge started! Good luck!');
+}
+
+// Handle complaint button press
+function handleComplaint() {
+  showCategorySelection('complaint');
+}
+
+// Handle excuse button press
+function handleExcuse() {
+  showCategorySelection('excuse');
+}
+
+// Show category selection
+function showCategorySelection(type) {
+  if (type === 'complaint') {
+    elements.complaintCategoriesContainer.style.display = 'block';
+    resetCategorySelection(elements.complaintCategoryCheckboxes);
+    startCategorySelectionTimer(type);
+  } else if (type === 'excuse') {
+    elements.excuseCategoriesContainer.style.display = 'block';
+    resetCategorySelection(elements.excuseCategoryCheckboxes);
+    startCategorySelectionTimer(type);
+  }
+}
+
+// Hide category selection
+function hideCategorySelection(type) {
+  if (type === 'complaint') {
+    elements.complaintCategoriesContainer.style.display = 'none';
+    clearInterval(complaintCategoryTimer);
+  } else if (type === 'excuse') {
+    elements.excuseCategoriesContainer.style.display = 'none';
+    clearInterval(excuseCategoryTimer);
+  }
+}
+
+// Reset category checkboxes
+function resetCategorySelection(checkboxes) {
+  checkboxes.forEach(checkbox => {
+    checkbox.checked = false;
+  });
+}
+
+// Start category selection timer
+function startCategorySelectionTimer(type) {
+  categorySelectionTimeLeft = 180; // 3 minutes
+  updateCategoryTimer(type);
+  
+  if (type === 'complaint') {
+    if (complaintCategoryTimer) clearInterval(complaintCategoryTimer);
+    
+    complaintCategoryTimer = setInterval(() => {
+      categorySelectionTimeLeft--;
+      updateCategoryTimer(type);
       
-      // Tab switching
-      document.querySelectorAll('.tab-button').forEach(button => {
-        button.addEventListener('click', function() {
-          const tabId = this.getAttribute('data-tab');
-          
-          // Remove active class from all tabs
-          document.querySelectorAll('.tab-button').forEach(btn => {
-            btn.classList.remove('active');
-          });
-          
-          document.querySelectorAll('.tab-content').forEach(content => {
-            content.classList.remove('active');
-          });
-          
-          // Add active class to target tab
-          this.classList.add('active');
-          document.getElementById(tabId + 'Tab').classList.add('active');
-        });
-      });
+      if (categorySelectionTimeLeft <= 0) {
+        clearInterval(complaintCategoryTimer);
+        hideCategorySelection(type);
+      }
+    }, 1000);
+  } else if (type === 'excuse') {
+    if (excuseCategoryTimer) clearInterval(excuseCategoryTimer);
+    
+    excuseCategoryTimer = setInterval(() => {
+      categorySelectionTimeLeft--;
+      updateCategoryTimer(type);
       
-      // Close notification
-      document.getElementById('notificationClose').addEventListener('click', () => {
-        document.getElementById('notification').classList.remove('show');
-      });
-      
-      // Show/hide analysis popup
-      document.getElementById('analysisBtn').addEventListener('click', () => {
-        document.getElementById('analysisOverlay').style.display = 'flex';
-      });
-      
-      document.getElementById('closeAnalysis').addEventListener('click', () => {
-        document.getElementById('analysisOverlay').style.display = 'none';
-      });
+      if (categorySelectionTimeLeft <= 0) {
+        clearInterval(excuseCategoryTimer);
+        hideCategorySelection(type);
+      }
+    }, 1000);
+  }
+}
+
+// Update category timer display
+function updateCategoryTimer(type) {
+  const minutes = Math.floor(categorySelectionTimeLeft / 60);
+  const seconds = categorySelectionTimeLeft % 60;
+  const timeDisplay = `Time remaining to select: ${minutes}:${seconds.toString().padStart(2, '0')}`;
+  
+  if (type === 'complaint') {
+    elements.complaintCategoryTimer.textContent = timeDisplay;
+  } else if (type === 'excuse') {
+    elements.excuseCategoryTimer.textContent = timeDisplay;
+  }
+}
+
+// Submit complaint category selection
+function submitComplaintCategory() {
+  const selectedCategories = [];
+  
+  elements.complaintCategoryCheckboxes.forEach(checkbox => {
+    if (checkbox.checked) {
+      const category = checkbox.dataset.category;
+      selectedCategories.push(category);
+      appState.complaintCategories[category]++;
+    }
+  });
+  
+  if (selectedCategories.length === 0) {
+    // If no category selected, default to "other"
+    appState.complaintCategories.other++;
+  }
+  
+  hideCategorySelection('complaint');
+  appState.totalComplaints++;
+  
+  // Reset complaint streak
+  if (appState.complaintStreak > 0) {
+    if (appState.complaintStreak > appState.bestComplaintStreak) {
+      appState.bestComplaintStreak = appState.complaintStreak;
+    }
+    appState.complaintStreak = 0;
+  }
+  
+  // Reset the complaint timer start time to now
+  appState.lastComplaintTime = new Date().getTime();
+  
+  // Reset clean days
+  appState.cleanDays = 0;
+  
+  // Update UI
+  updateDisplay();
+  
+  // Save state
+  saveState();
+  
+  // Show journal entry
+  showJournalEntry('complaint', selectedCategories.length > 0 ? selectedCategories : ['other']);
+  
+  // Restart the complaint timer
+  if (complaintTimerInterval) {
+    clearInterval(complaintTimerInterval);
+  }
+  startComplaintTimer();
+  
+  // Show notification
+  showNotification('Complaint recorded. Your streak has been reset.');
+}
+
+// Submit excuse category selection
+function submitExcuseCategory() {
+  const selectedCategories = [];
+  
+  elements.excuseCategoryCheckboxes.forEach(checkbox => {
+    if (checkbox.checked) {
+      const category = checkbox.dataset.category;
+      selectedCategories.push(category);
+      appState.excuseCategories[category]++;
+    }
+  });
+  
+  if (selectedCategories.length === 0) {
+    // If no category selected, default to "other"
+    appState.excuseCategories.other++;
+  }
+  
+  hideCategorySelection('excuse');
+  appState.totalExcuses++;
+  
+  // Reset excuse streak
+  if (appState.excuseStreak > 0) {
+    if (appState.excuseStreak > appState.bestExcuseStreak) {
+      appState.bestExcuseStreak = appState.excuseStreak;
+    }
+    appState.excuseStreak = 0;
+  }
+  
+  // Reset the excuse timer start time to now
+  appState.lastExcuseTime = new Date().getTime();
+  
+  // Reset clean days
+  appState.cleanDays = 0;
+  
+  // Update UI
+  updateDisplay();
+  
+  // Save state
+  saveState();
+  
+  // Show journal entry
+  showJournalEntry('excuse', selectedCategories.length > 0 ? selectedCategories : ['other']);
+  
+  // Restart the excuse timer
+  if (excuseTimerInterval) {
+    clearInterval(excuseTimerInterval);
+  }
+  startExcuseTimer();
+  
+  // Show notification
+  showNotification('Excuse recorded. Your streak has been reset.');
+}
+
+// Show journal entry
+function showJournalEntry(type, categories) {
+  elements.journalEntryContainer.style.display = 'block';
+  elements.journalText.value = '';
+  elements.journalText.dataset.type = type;
+  elements.journalText.dataset.categories = categories.join(',');
+  elements.journalText.focus();
+}
+
+// Hide journal entry
+function hideJournalEntry() {
+  elements.journalEntryContainer.style.display = 'none';
+}
+
+// Submit journal entry
+function submitJournalEntry() {
+  const text = elements.journalText.value.trim();
+  
+  if (text) {
+    const entry = {
+      date: new Date().toISOString(),
+      text: text,
+      type: elements.journalText.dataset.type,
+      categories: elements.journalText.dataset.categories.split(',')
+    };
+    
+    appState.journalEntries.unshift(entry);
+    saveState();
+  }
+  
+  hideJournalEntry();
+}
+
+// Reset everything
+function resetChallenge() {
+  if (confirm('Are you sure you want to reset the challenge? All progress will be lost.')) {
+    // Clear intervals
+    if (complaintTimerInterval) clearInterval(complaintTimerInterval);
+    if (excuseTimerInterval) clearInterval(excuseTimerInterval);
+    if (complaintCategoryTimer) clearInterval(complaintCategoryTimer);
+    if (excuseCategoryTimer) clearInterval(excuseCategoryTimer);
+    
+    // Reset state
+    appState.isStarted = false;
+    appState.startDate = null;
+    appState.complaintStreak = 0;
+    appState.bestComplaintStreak = 0;
+    appState.totalComplaints = 0;
+    appState.lastComplaintTime = null;
+    appState.excuseStreak = 0;
+    appState.bestExcuseStreak = 0;
+    appState.totalExcuses = 0;
+    appState.lastExcuseTime = null;
+    appState.cleanDays = 0;
+    appState.lastCheckDate = null;
+    
+    // Reset categories
+    Object.keys(appState.complaintCategories).forEach(key => {
+      appState.complaintCategories[key] = 0;
     });
     
-    function showNotification(message, duration = 5000) {
-      const notification = document.getElementById('notification');
-      const notificationText = document.getElementById('notificationText');
+    Object.keys(appState.excuseCategories).forEach(key => {
+      appState.excuseCategories[key] = 0;
+    });
+    
+    // Clear journal entries
+    appState.journalEntries = [];
+    
+    // Update button states
+    elements.startBtn.disabled = false;
+    elements.complaintBtn.disabled = true;
+    elements.excuseBtn.disabled = true;
+    elements.analysisBtn.disabled = true;
+    
+    // Update UI
+    elements.combinedProgressBar.style.width = '0%';
+    elements.complaintCountdown.textContent = '00:00:00';
+    elements.excuseCountdown.textContent = '00:00:00';
+    
+    updateDisplay();
+    
+    // Save state
+    saveState();
+    
+    // Hide sections
+    hideCategorySelection('complaint');
+    hideCategorySelection('excuse');
+    hideJournalEntry();
+    hideAnalysis();
+    
+    // Show notification
+    showNotification('Challenge has been reset. You can start fresh.');
+  }
+}
+
+// Start complaint timer
+function startComplaintTimer() {
+  if (complaintTimerInterval) {
+    clearInterval(complaintTimerInterval);
+  }
+  
+  updateComplaintTime();
+  
+  complaintTimerInterval = setInterval(() => {
+    updateComplaintTime();
+    checkProgressAndUpdate();
+  }, 1000);
+}
+
+// Start excuse timer
+function startExcuseTimer() {
+  if (excuseTimerInterval) {
+    clearInterval(excuseTimerInterval);
+  }
+  
+  updateExcuseTime();
+  
+  excuseTimerInterval = setInterval(() => {
+    updateExcuseTime();
+    checkProgressAndUpdate();
+  }, 1000);
+}
+
+// Update complaint timer display
+function updateComplaintTime() {
+  if (!appState.lastComplaintTime) return;
+  
+  const now = new Date().getTime();
+  const elapsed = now - appState.lastComplaintTime;
+  
+  // Calculate elapsed time
+  const totalSeconds = Math.floor(elapsed / 1000);
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+  
+  elements.complaintCountdown.textContent = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+  
+  // Check if a new day has passed based on elapsed time
+  const daysPassed = Math.floor(elapsed / (1000 * 60 * 60 * 24));
+  if (daysPassed > appState.complaintStreak) {
+    // Update streak for each day passed
+    for (let i = appState.complaintStreak; i < daysPassed; i++) {
+      appState.complaintStreak++;
       
-      notificationText.textContent = message;
-      notification.classList.add('show');
+      if (appState.complaintStreak > appState.bestComplaintStreak) {
+        appState.bestComplaintStreak = appState.complaintStreak;
+      }
       
-      setTimeout(() => {
-        notification.classList.remove('show');
-      }, duration);
+      // Update display with each day increment
+      updateDisplay();
+      
+      if (appState.complaintStreak === 21 && appState.excuseStreak >= 21) {
+        showNotification('Congratulations! You have completed the 21-day challenge!', 10000);
+      }
     }
-  </script>
-  </div>
-</body>
-</html>
+    
+    saveState();
+  }
+}
+
+// Update excuse timer display
+function updateExcuseTime() {
+  if (!appState.lastExcuseTime) return;
+  
+  const now = new Date().getTime();
+  const elapsed = now - appState.lastExcuseTime;
+  
+  // Calculate elapsed time
+  const totalSeconds = Math.floor(elapsed / 1000);
+  const hours = Math.floor(totalSeconds / 3600);
+  const minutes = Math.floor((totalSeconds % 3600) / 60);
+  const seconds = totalSeconds % 60;
+  
+  elements.excuseCountdown.textContent = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+  
+  // Check if a new day has passed based on elapsed time
+  const daysPassed = Math.floor(elapsed / (1000 * 60 * 60 * 24));
+  if (daysPassed > appState.excuseStreak) {
+    // Update streak for each day passed
+    for (let i = appState.excuseStreak; i < daysPassed; i++) {
+      appState.excuseStreak++;
+      
+      if (appState.excuseStreak > appState.bestExcuseStreak) {
+        appState.bestExcuseStreak = appState.excuseStreak;
+      }
+      
+      // Update display with each day increment
+      updateDisplay();
+      
+      if (appState.complaintStreak >= 21 && appState.excuseStreak === 21) {
+        showNotification('Congratulations! You have completed the 21-day challenge!', 10000);
+      }
+    }
+    
+    saveState();
+  }
+}
+
+// Check progress and update
+function checkProgressAndUpdate() {
+  // Update clean days - min of both streaks
+  const cleanDays = Math.min(appState.complaintStreak, appState.excuseStreak);
+  
+  if (cleanDays > appState.cleanDays) {
+    appState.cleanDays = cleanDays;
+  }
+  
+  // Update combined progress bar
+  const progress = Math.min(appState.cleanDays / 21 * 100, 100);
+  
+  elements.combinedProgressBar.style.width = `${progress}%`;
+  elements.combinedProgressCount.textContent = `${Math.min(appState.cleanDays, 21)}/21`;
+}
+
+// Update display
+function updateDisplay() {
+  elements.complaintStreak.textContent = appState.complaintStreak;
+  elements.excuseStreak.textContent = appState.excuseStreak;
+  elements.bestComplaintStreak.textContent = appState.bestComplaintStreak;
+  elements.bestExcuseStreak.textContent = appState.bestExcuseStreak;
+  elements.totalComplaints.textContent = appState.totalComplaints;
+  elements.totalExcuses.textContent = appState.totalExcuses;
+  elements.startDate.textContent = appState.startDate || 'Not started yet';
+  elements.cleanDays.textContent = appState.cleanDays;
+  
+  checkProgressAndUpdate();
+}
+
+// Show notification
+function showNotification(message, duration = 5000) {
+  elements.notificationText.textContent = message;
+  elements.notification.classList.add('show');
+  
+  setTimeout(() => {
+    elements.notification.classList.remove('show');
+  }, duration);
+}
+
+// Show analysis popup
+function showAnalysis() {
+  elements.analysisOverlay.style.display = 'flex';
+  // In a real implementation, you would generate the charts here
+}
+
+// Hide analysis popup
+function hideAnalysis() {
+  elements.analysisOverlay.style.display = 'none';
+}
+
+// Load saved state from localStorage
+function loadState() {
+  const savedState = localStorage.getItem('noComplaintChallengeApp');
+  if (savedState) {
+    try {
+      const parsedState = JSON.parse(savedState);
+      Object.assign(appState, parsedState);
+      
+      // Check if challenge is started
+      if (appState.isStarted) {
+        elements.startBtn.disabled = true;
+        elements.complaintBtn.disabled = false;
+        elements.excuseBtn.disabled = false;
+        elements.analysisBtn.disabled = false;
+        
+        updateDisplay();
+        startComplaintTimer();
+        startExcuseTimer();
+      }
+    } catch (error) {
+      console.error('Error loading saved state:', error);
+      // Reset to default if there's an error
+      appState.isStarted = false;
+    }
+  }
+}
+
+// Save state to localStorage
+function saveState() {
+  try {
+    localStorage.setItem('noComplaintChallengeApp', JSON.stringify(appState));
+  } catch (error) {
+    console.error('Error saving state:', error);
+    showNotification('Error saving your progress. Please check your browser storage settings.');
+  }
+}
+
+// Initialize the app
+function init() {
+  // Add event listeners
+  elements.startBtn.addEventListener('click', startChallenge);
+  elements.complaintBtn.addEventListener('click', handleComplaint);
+  elements.excuseBtn.addEventListener('click', handleExcuse);
+  elements.analysisBtn.addEventListener('click', showAnalysis);
+  elements.resetBtn.addEventListener('click', resetChallenge);
+  
+  elements.submitComplaintCategoryBtn.addEventListener('click', submitComplaintCategory);
+  elements.submitExcuseCategoryBtn.addEventListener('click', submitExcuseCategory);
+  elements.submitJournalBtn.addEventListener('click', submitJournalEntry);
+  
+  elements.closeAnalysis.addEventListener('click', hideAnalysis);
+  elements.notificationClose.addEventListener('click', () => {
+    elements.notification.classList.remove('show');
+  });
+  
+  // Tab switching
+  document.querySelectorAll('.tab-button').forEach(button => {
+    button.addEventListener('click', function() {
+      const tabId = this.getAttribute('data-tab');
+      
+      // Remove active class from all tabs
+      document.querySelectorAll('.tab-button').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      
+      document.querySelectorAll('.tab-content').forEach(content => {
+        content.classList.remove('active');
+      });
+      
+      // Add active class to target tab
+      this.classList.add('active');
+      document.getElementById(tabId + 'Tab').classList.add('active');
+    });
+  });
+  
+  // Load saved state
+  loadState();
+  
+  // Update display
+  updateDisplay();
+  
+  // Show welcome notification after a short delay
+  setTimeout(() => {
+    showNotification("Welcome to your 21-day challenge! Ready to start?");
+  }, 1000);
+}
+
+// Initialize when the DOM is fully loaded
+document.addEventListener('DOMContentLoaded', init);
