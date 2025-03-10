@@ -495,25 +495,6 @@
       text-align: center;
     }
     
-    /* Other Category Note Field */
-    .other-note {
-      display: none;
-      margin-top: var(--space-sm);
-      width: 100%;
-    }
-    
-    .other-note textarea {
-      width: 100%;
-      padding: var(--space-sm);
-      border-radius: var(--radius-sm);
-      border: 1px solid var(--mid-gray);
-      font-family: var(--font-primary);
-      font-size: 0.9rem;
-      resize: vertical;
-      min-height: 60px;
-      max-height: 120px;
-    }
-    
     /* Definition Section */
     .definition {
       background: linear-gradient(135deg, var(--white), var(--light-gray));
@@ -779,11 +760,6 @@
         font-size: 0.9rem;
       }
       
-      .other-note textarea {
-        max-width: 100%;
-        font-size: 16px; /* Prevents zoom on iOS */
-      }
-      
       .categories {
         padding: var(--space-sm);
       }
@@ -1042,10 +1018,6 @@
         <div class="category-description">Any complaint that doesn't fit the categories above</div>
       </div>
       
-      <div id="complaint_other_note" class="other-note">
-        <textarea id="complaint_other_text" placeholder="Optional: Briefly describe this complaint"></textarea>
-      </div>
-      
       <div class="submit-category">
         <button id="submitComplaintCategoryBtn" class="btn btn-primary">Submit Category</button>
       </div>
@@ -1094,10 +1066,6 @@
           <span class="category-label">Other</span>
         </label>
         <div class="category-description">Any excuse that doesn't fit the categories above</div>
-      </div>
-      
-      <div id="excuse_other_note" class="other-note">
-        <textarea id="excuse_other_text" placeholder="Optional: Briefly describe this excuse"></textarea>
       </div>
       
       <div class="submit-category">
@@ -1196,6 +1164,9 @@
       isStarted: false,
       startDate: null,
       
+      // First visit tracker
+      isFirstVisit: true,
+      
       // Complaint tracking
       complaintStreak: 0,
       bestComplaintStreak: 0,
@@ -1274,14 +1245,6 @@
       complaintCategoryTimer: document.getElementById('complaintCategoryTimer'),
       excuseCategoryTimer: document.getElementById('excuseCategoryTimer'),
       
-      // Other category note fields
-      complaintOtherNote: document.getElementById('complaint_other_note'),
-      excuseOtherNote: document.getElementById('excuse_other_note'),
-      complaintOtherText: document.getElementById('complaint_other_text'),
-      excuseOtherText: document.getElementById('excuse_other_text'),
-      complaintOtherCheckbox: document.getElementById('complaint_other'),
-      excuseOtherCheckbox: document.getElementById('excuse_other'),
-      
       // Analysis popup
       analysisOverlay: document.getElementById('analysisOverlay'),
       closeAnalysis: document.getElementById('closeAnalysis'),
@@ -1338,29 +1301,34 @@
 
     // Handle complaint button press
     function handleComplaint() {
-      showCategorySelection('complaint');
+      elements.complaintCategoriesContainer.style.display = 'block';
+      resetCategorySelection(elements.complaintCategoryCheckboxes);
+      
+      // Ensure smooth scrolling to the category selection
+      setTimeout(() => {
+        elements.complaintCategoriesContainer.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'start' 
+        });
+      }, 100);
+      
+      startCategorySelectionTimer('complaint');
     }
 
     // Handle excuse button press
     function handleExcuse() {
-      showCategorySelection('excuse');
-    }
-
-    // Show category selection
-    function showCategorySelection(type) {
-      if (type === 'complaint') {
-        elements.complaintCategoriesContainer.style.display = 'block';
-        resetCategorySelection(elements.complaintCategoryCheckboxes);
-        elements.complaintOtherNote.style.display = 'none';
-        elements.complaintCategoriesContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        startCategorySelectionTimer(type);
-      } else if (type === 'excuse') {
-        elements.excuseCategoriesContainer.style.display = 'block';
-        resetCategorySelection(elements.excuseCategoryCheckboxes);
-        elements.excuseOtherNote.style.display = 'none';
-        elements.excuseCategoriesContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        startCategorySelectionTimer(type);
-      }
+      elements.excuseCategoriesContainer.style.display = 'block';
+      resetCategorySelection(elements.excuseCategoryCheckboxes);
+      
+      // Ensure smooth scrolling to the category selection
+      setTimeout(() => {
+        elements.excuseCategoriesContainer.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'start' 
+        });
+      }, 100);
+      
+      startCategorySelectionTimer('excuse');
     }
 
     // Hide category selection
@@ -1429,18 +1397,12 @@
     // Submit complaint category selection
     function submitComplaintCategory() {
       const selectedCategories = [];
-      let otherNoteText = '';
       
       elements.complaintCategoryCheckboxes.forEach(checkbox => {
         if (checkbox.checked) {
           const category = checkbox.dataset.category;
           selectedCategories.push(category);
           appState.complaintCategories[category]++;
-          
-          // If "other" is selected, get the note text
-          if (category === 'other' && elements.complaintOtherText.value.trim()) {
-            otherNoteText = elements.complaintOtherText.value.trim();
-          }
         }
       });
       
@@ -1462,7 +1424,7 @@
       }
       
       // Record analysis data
-      recordComplaint(selectedCategories, otherNoteText);
+      recordComplaint(selectedCategories);
       
       // Reset the complaint timer start time to now
       appState.lastComplaintTime = new Date().getTime();
@@ -1490,18 +1452,12 @@
     // Submit excuse category selection
     function submitExcuseCategory() {
       const selectedCategories = [];
-      let otherNoteText = '';
       
       elements.excuseCategoryCheckboxes.forEach(checkbox => {
         if (checkbox.checked) {
           const category = checkbox.dataset.category;
           selectedCategories.push(category);
           appState.excuseCategories[category]++;
-          
-          // If "other" is selected, get the note text
-          if (category === 'other' && elements.excuseOtherText.value.trim()) {
-            otherNoteText = elements.excuseOtherText.value.trim();
-          }
         }
       });
       
@@ -1523,7 +1479,7 @@
       }
       
       // Record analysis data
-      recordExcuse(selectedCategories, otherNoteText);
+      recordExcuse(selectedCategories);
       
       // Reset the excuse timer start time to now
       appState.lastExcuseTime = new Date().getTime();
@@ -1548,16 +1504,15 @@
       showNotification('Excuse recorded. Your streak has been reset.');
     }
 
-    // Record a complaint for analysis
-    function recordComplaint(categories, otherNote = '') {
+    // Record a complaint for analysis (no journal entries)
+    function recordComplaint(categories) {
       const now = new Date();
       const entry = {
         date: now.toISOString(),
         timestamp: now.getTime(),
         categories: categories,
         hour: now.getHours(),
-        day: now.getDay(),
-        note: otherNote
+        day: now.getDay()
       };
       
       if (!appState.complaintEntries) {
@@ -1567,16 +1522,15 @@
       appState.complaintEntries.push(entry);
     }
 
-    // Record an excuse for analysis
-    function recordExcuse(categories, otherNote = '') {
+    // Record an excuse for analysis (no journal entries)
+    function recordExcuse(categories) {
       const now = new Date();
       const entry = {
         date: now.toISOString(),
         timestamp: now.getTime(),
         categories: categories,
         hour: now.getHours(),
-        day: now.getDay(),
-        note: otherNote
+        day: now.getDay()
       };
       
       if (!appState.excuseEntries) {
@@ -1608,6 +1562,9 @@
         appState.lastExcuseTime = null;
         appState.cleanDays = 0;
         appState.lastCheckDate = null;
+        
+        // Keep the isFirstVisit to false since the user has already seen the welcome message
+        appState.isFirstVisit = false;
         
         // Reset categories
         Object.keys(appState.complaintCategories).forEach(key => {
@@ -1966,6 +1923,13 @@
             startComplaintTimer();
             startExcuseTimer();
           }
+          
+          // If isFirstVisit flag exists in saved state, use it
+          // Otherwise, assume this is a first visit
+          if (typeof parsedState.isFirstVisit === 'undefined') {
+            appState.isFirstVisit = true;
+          }
+          
         } catch (error) {
           console.error('Error loading saved state:', error);
           // Reset to default if there's an error
@@ -2001,21 +1965,6 @@
         elements.notification.classList.remove('show');
       });
       
-      // Add listeners for 'Other' category to show/hide note field
-      elements.complaintOtherCheckbox.addEventListener('change', function() {
-        elements.complaintOtherNote.style.display = this.checked ? 'block' : 'none';
-        if (this.checked) {
-          setTimeout(() => elements.complaintOtherText.focus(), 100);
-        }
-      });
-      
-      elements.excuseOtherCheckbox.addEventListener('change', function() {
-        elements.excuseOtherNote.style.display = this.checked ? 'block' : 'none';
-        if (this.checked) {
-          setTimeout(() => elements.excuseOtherText.focus(), 100);
-        }
-      });
-      
       // Tab switching
       document.querySelectorAll('.tab-button').forEach(button => {
         button.addEventListener('click', function() {
@@ -2043,10 +1992,15 @@
       updateDisplay();
       updateAnalysisData();
       
-      // Show welcome notification after a short delay
-      setTimeout(() => {
-        showNotification("Welcome to your 21-day challenge! Ready to start?");
-      }, 1000);
+      // Show welcome notification only on first visit
+      if (appState.isFirstVisit) {
+        setTimeout(() => {
+          showNotification("Welcome to your 21-day challenge! Ready to start?");
+          // Update the first visit flag and save state
+          appState.isFirstVisit = false;
+          saveState();
+        }, 1000);
+      }
     }
 
     // Initialize when the DOM is fully loaded
