@@ -495,6 +495,25 @@
       text-align: center;
     }
     
+    /* Other Category Note Field */
+    .other-note {
+      display: none;
+      margin-top: var(--space-sm);
+      width: 100%;
+    }
+    
+    .other-note textarea {
+      width: 100%;
+      padding: var(--space-sm);
+      border-radius: var(--radius-sm);
+      border: 1px solid var(--mid-gray);
+      font-family: var(--font-primary);
+      font-size: 0.9rem;
+      resize: vertical;
+      min-height: 60px;
+      max-height: 120px;
+    }
+    
     /* Definition Section */
     .definition {
       background: linear-gradient(135deg, var(--white), var(--light-gray));
@@ -700,12 +719,22 @@
     
     /* For smaller screens */
     @media (max-width: 768px) {
+      body {
+        padding: var(--space-sm);
+      }
+      
       .app-container {
         border-radius: 0;
+        width: 100%;
+      }
+      
+      .app-header {
+        padding: var(--space-sm);
       }
       
       .main-content {
         flex-direction: column;
+        padding: var(--space-sm);
       }
       
       .content-right {
@@ -717,12 +746,62 @@
         flex-direction: column;
       }
       
+      .timer-card {
+        margin-bottom: var(--space-sm);
+      }
+      
       .btn {
         width: 100%;
+        padding: 10px 16px;
+        font-size: 0.9rem;
+        margin: 5px 0;
       }
       
       .button-group {
         flex-direction: column;
+        gap: var(--space-xs);
+      }
+      
+      .popup {
+        width: 95%;
+        max-height: 95vh;
+        margin: 10px;
+      }
+      
+      .tab-buttons {
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        padding-bottom: var(--space-xs);
+      }
+      
+      .tab-button {
+        padding: var(--space-xs) var(--space-sm);
+        font-size: 0.9rem;
+      }
+      
+      .other-note textarea {
+        max-width: 100%;
+        font-size: 16px; /* Prevents zoom on iOS */
+      }
+      
+      .categories {
+        padding: var(--space-sm);
+      }
+      
+      .category-item {
+        padding: var(--space-xs);
+      }
+      
+      .tagline {
+        font-size: 1.1rem;
+      }
+      
+      .progress-count {
+        font-size: 0.8rem;
+      }
+      
+      .definition, .example {
+        padding: var(--space-sm);
       }
     }
     
@@ -963,6 +1042,10 @@
         <div class="category-description">Any complaint that doesn't fit the categories above</div>
       </div>
       
+      <div id="complaint_other_note" class="other-note">
+        <textarea id="complaint_other_text" placeholder="Optional: Briefly describe this complaint"></textarea>
+      </div>
+      
       <div class="submit-category">
         <button id="submitComplaintCategoryBtn" class="btn btn-primary">Submit Category</button>
       </div>
@@ -1013,18 +1096,12 @@
         <div class="category-description">Any excuse that doesn't fit the categories above</div>
       </div>
       
+      <div id="excuse_other_note" class="other-note">
+        <textarea id="excuse_other_text" placeholder="Optional: Briefly describe this excuse"></textarea>
+      </div>
+      
       <div class="submit-category">
         <button id="submitExcuseCategoryBtn" class="btn btn-primary">Submit Category</button>
-      </div>
-    </div>
-    
-    <!-- Journal Entry -->
-    <div class="categories" id="journalEntryContainer">
-      <h3 class="categories-title">Journal Entry (Optional)</h3>
-      <p class="categories-timer">Reflect on what happened and how you could reframe it positively:</p>
-      <textarea id="journalText" placeholder="What happened? How could you have reframed this situation?" style="width: 100%; height: 120px; border-radius: 8px; padding: 12px; border: 1px solid #e0e0e0; margin: 16px 0; font-family: inherit;"></textarea>
-      <div class="submit-category">
-        <button id="submitJournalBtn" class="btn btn-primary">Save Journal Entry</button>
       </div>
     </div>
     
@@ -1098,12 +1175,12 @@
             <div class="analysis-section">
               <h3>Your Pattern Insights</h3>
               <div class="info-section">
-                <p><strong>Most common complaint category:</strong> <span>Not enough data</span></p>
-                <p><strong>Most common excuse category:</strong> <span>Not enough data</span></p>
-                <p><strong>Typical time for complaints:</strong> <span>Not enough data</span></p>
-                <p><strong>Typical time for excuses:</strong> <span>Not enough data</span></p>
-                <p><strong>Improvement suggestion:</strong> <span>Start tracking to receive personalized insights</span></p>
-                <p><strong>Current challenge status:</strong> <span>Not started</span></p>
+                <p><strong>Most common complaint category:</strong> <span id="topComplaintCategory">Not enough data</span></p>
+                <p><strong>Most common excuse category:</strong> <span id="topExcuseCategory">Not enough data</span></p>
+                <p><strong>Typical time for complaints:</strong> <span id="complaintTimePattern">Not enough data</span></p>
+                <p><strong>Typical time for excuses:</strong> <span id="excuseTimePattern">Not enough data</span></p>
+                <p><strong>Improvement suggestion:</strong> <span id="improvementSuggestion">Start tracking to receive personalized insights</span></p>
+                <p><strong>Current challenge status:</strong> <span id="challengeStatus">Not started</span></p>
               </div>
             </div>
           </div>
@@ -1155,8 +1232,9 @@
         other: 0
       },
       
-      // Journal entries
-      journalEntries: []
+      // Analysis data
+      complaintEntries: [],
+      excuseEntries: []
     };
 
     // DOM elements
@@ -1196,14 +1274,23 @@
       complaintCategoryTimer: document.getElementById('complaintCategoryTimer'),
       excuseCategoryTimer: document.getElementById('excuseCategoryTimer'),
       
-      // Journal
-      journalEntryContainer: document.getElementById('journalEntryContainer'),
-      journalText: document.getElementById('journalText'),
-      submitJournalBtn: document.getElementById('submitJournalBtn'),
+      // Other category note fields
+      complaintOtherNote: document.getElementById('complaint_other_note'),
+      excuseOtherNote: document.getElementById('excuse_other_note'),
+      complaintOtherText: document.getElementById('complaint_other_text'),
+      excuseOtherText: document.getElementById('excuse_other_text'),
+      complaintOtherCheckbox: document.getElementById('complaint_other'),
+      excuseOtherCheckbox: document.getElementById('excuse_other'),
       
       // Analysis popup
       analysisOverlay: document.getElementById('analysisOverlay'),
       closeAnalysis: document.getElementById('closeAnalysis'),
+      topComplaintCategory: document.getElementById('topComplaintCategory'),
+      topExcuseCategory: document.getElementById('topExcuseCategory'),
+      complaintTimePattern: document.getElementById('complaintTimePattern'),
+      excuseTimePattern: document.getElementById('excuseTimePattern'),
+      improvementSuggestion: document.getElementById('improvementSuggestion'),
+      challengeStatus: document.getElementById('challengeStatus'),
       
       // Notification
       notification: document.getElementById('notification'),
@@ -1240,6 +1327,7 @@
       
       // Update UI
       updateDisplay();
+      updateAnalysisData();
       
       // Save state
       saveState();
@@ -1263,10 +1351,14 @@
       if (type === 'complaint') {
         elements.complaintCategoriesContainer.style.display = 'block';
         resetCategorySelection(elements.complaintCategoryCheckboxes);
+        elements.complaintOtherNote.style.display = 'none';
+        elements.complaintCategoriesContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
         startCategorySelectionTimer(type);
       } else if (type === 'excuse') {
         elements.excuseCategoriesContainer.style.display = 'block';
         resetCategorySelection(elements.excuseCategoryCheckboxes);
+        elements.excuseOtherNote.style.display = 'none';
+        elements.excuseCategoriesContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
         startCategorySelectionTimer(type);
       }
     }
@@ -1337,18 +1429,25 @@
     // Submit complaint category selection
     function submitComplaintCategory() {
       const selectedCategories = [];
+      let otherNoteText = '';
       
       elements.complaintCategoryCheckboxes.forEach(checkbox => {
         if (checkbox.checked) {
           const category = checkbox.dataset.category;
           selectedCategories.push(category);
           appState.complaintCategories[category]++;
+          
+          // If "other" is selected, get the note text
+          if (category === 'other' && elements.complaintOtherText.value.trim()) {
+            otherNoteText = elements.complaintOtherText.value.trim();
+          }
         }
       });
       
       if (selectedCategories.length === 0) {
         // If no category selected, default to "other"
         appState.complaintCategories.other++;
+        selectedCategories.push('other');
       }
       
       hideCategorySelection('complaint');
@@ -1362,6 +1461,9 @@
         appState.complaintStreak = 0;
       }
       
+      // Record analysis data
+      recordComplaint(selectedCategories, otherNoteText);
+      
       // Reset the complaint timer start time to now
       appState.lastComplaintTime = new Date().getTime();
       
@@ -1370,12 +1472,10 @@
       
       // Update UI
       updateDisplay();
+      updateAnalysisData();
       
       // Save state
       saveState();
-      
-      // Show journal entry
-      showJournalEntry('complaint', selectedCategories.length > 0 ? selectedCategories : ['other']);
       
       // Restart the complaint timer
       if (complaintTimerInterval) {
@@ -1390,18 +1490,25 @@
     // Submit excuse category selection
     function submitExcuseCategory() {
       const selectedCategories = [];
+      let otherNoteText = '';
       
       elements.excuseCategoryCheckboxes.forEach(checkbox => {
         if (checkbox.checked) {
           const category = checkbox.dataset.category;
           selectedCategories.push(category);
           appState.excuseCategories[category]++;
+          
+          // If "other" is selected, get the note text
+          if (category === 'other' && elements.excuseOtherText.value.trim()) {
+            otherNoteText = elements.excuseOtherText.value.trim();
+          }
         }
       });
       
       if (selectedCategories.length === 0) {
         // If no category selected, default to "other"
         appState.excuseCategories.other++;
+        selectedCategories.push('other');
       }
       
       hideCategorySelection('excuse');
@@ -1415,6 +1522,9 @@
         appState.excuseStreak = 0;
       }
       
+      // Record analysis data
+      recordExcuse(selectedCategories, otherNoteText);
+      
       // Reset the excuse timer start time to now
       appState.lastExcuseTime = new Date().getTime();
       
@@ -1423,12 +1533,10 @@
       
       // Update UI
       updateDisplay();
+      updateAnalysisData();
       
       // Save state
       saveState();
-      
-      // Show journal entry
-      showJournalEntry('excuse', selectedCategories.length > 0 ? selectedCategories : ['other']);
       
       // Restart the excuse timer
       if (excuseTimerInterval) {
@@ -1440,37 +1548,42 @@
       showNotification('Excuse recorded. Your streak has been reset.');
     }
 
-    // Show journal entry
-    function showJournalEntry(type, categories) {
-      elements.journalEntryContainer.style.display = 'block';
-      elements.journalText.value = '';
-      elements.journalText.dataset.type = type;
-      elements.journalText.dataset.categories = categories.join(',');
-      elements.journalText.focus();
-    }
-
-    // Hide journal entry
-    function hideJournalEntry() {
-      elements.journalEntryContainer.style.display = 'none';
-    }
-
-    // Submit journal entry
-    function submitJournalEntry() {
-      const text = elements.journalText.value.trim();
+    // Record a complaint for analysis
+    function recordComplaint(categories, otherNote = '') {
+      const now = new Date();
+      const entry = {
+        date: now.toISOString(),
+        timestamp: now.getTime(),
+        categories: categories,
+        hour: now.getHours(),
+        day: now.getDay(),
+        note: otherNote
+      };
       
-      if (text) {
-        const entry = {
-          date: new Date().toISOString(),
-          text: text,
-          type: elements.journalText.dataset.type,
-          categories: elements.journalText.dataset.categories.split(',')
-        };
-        
-        appState.journalEntries.unshift(entry);
-        saveState();
+      if (!appState.complaintEntries) {
+        appState.complaintEntries = [];
       }
       
-      hideJournalEntry();
+      appState.complaintEntries.push(entry);
+    }
+
+    // Record an excuse for analysis
+    function recordExcuse(categories, otherNote = '') {
+      const now = new Date();
+      const entry = {
+        date: now.toISOString(),
+        timestamp: now.getTime(),
+        categories: categories,
+        hour: now.getHours(),
+        day: now.getDay(),
+        note: otherNote
+      };
+      
+      if (!appState.excuseEntries) {
+        appState.excuseEntries = [];
+      }
+      
+      appState.excuseEntries.push(entry);
     }
 
     // Reset everything
@@ -1505,8 +1618,9 @@
           appState.excuseCategories[key] = 0;
         });
         
-        // Clear journal entries
-        appState.journalEntries = [];
+        // Clear analysis data
+        appState.complaintEntries = [];
+        appState.excuseEntries = [];
         
         // Update button states
         elements.startBtn.disabled = false;
@@ -1520,6 +1634,7 @@
         elements.excuseCountdown.textContent = '00:00:00';
         
         updateDisplay();
+        updateAnalysisData();
         
         // Save state
         saveState();
@@ -1527,7 +1642,6 @@
         // Hide sections
         hideCategorySelection('complaint');
         hideCategorySelection('excuse');
-        hideJournalEntry();
         hideAnalysis();
         
         // Show notification
@@ -1669,6 +1783,144 @@
       checkProgressAndUpdate();
     }
 
+    // Update analysis data
+    function updateAnalysisData() {
+      // Most common complaint category
+      const topComplaintCategory = getTopCategory(appState.complaintCategories);
+      elements.topComplaintCategory.textContent = topComplaintCategory || 'Not enough data';
+      
+      // Most common excuse category
+      const topExcuseCategory = getTopCategory(appState.excuseCategories);
+      elements.topExcuseCategory.textContent = topExcuseCategory || 'Not enough data';
+      
+      // Time patterns
+      const complaintTimePattern = getTimePattern(appState.complaintEntries);
+      elements.complaintTimePattern.textContent = complaintTimePattern || 'Not enough data';
+      
+      const excuseTimePattern = getTimePattern(appState.excuseEntries);
+      elements.excuseTimePattern.textContent = excuseTimePattern || 'Not enough data';
+      
+      // Improvement suggestion
+      elements.improvementSuggestion.textContent = getImprovementSuggestion() || 'Start tracking to receive personalized insights';
+      
+      // Challenge status
+      elements.challengeStatus.textContent = getChallengeStatus() || 'Not started';
+    }
+    
+    // Get the top category from a categories object
+    function getTopCategory(categoriesObj) {
+      let topCategory = null;
+      let maxCount = 0;
+      
+      for (const [category, count] of Object.entries(categoriesObj)) {
+        if (count > maxCount) {
+          maxCount = count;
+          topCategory = getCategoryReadableName(category);
+        }
+      }
+      
+      return maxCount > 0 ? `${topCategory} (${maxCount} times)` : null;
+    }
+    
+    // Get readable category name
+    function getCategoryReadableName(categoryKey) {
+      const categoryNames = {
+        // Complaint categories
+        'interpersonal': 'Interpersonal Interactions',
+        'delays': 'Delays & Timeliness',
+        'quality': 'Quality & Reliability',
+        'pricing': 'Pricing & Value',
+        'communication': 'Communication Issues',
+        'process': 'Process & Accessibility',
+        'emotional': 'Emotional & Relational Dynamics',
+        
+        // Excuse categories
+        'blame': 'Externalizing Blame',
+        'trauma': 'Past Trauma Emphasis',
+        'control': 'Perceived Lack of Control',
+        'accountability': 'Avoidance of Accountability',
+        
+        // Common
+        'other': 'Other'
+      };
+      
+      return categoryNames[categoryKey] || categoryKey;
+    }
+    
+    // Get time pattern from entries
+    function getTimePattern(entries) {
+      if (!entries || entries.length < 3) return null;
+      
+      // Group entries by hour
+      const hourCounts = {};
+      entries.forEach(entry => {
+        const hour = entry.hour;
+        hourCounts[hour] = (hourCounts[hour] || 0) + 1;
+      });
+      
+      // Find the most common hour
+      let maxHour = 0;
+      let maxCount = 0;
+      for (const [hour, count] of Object.entries(hourCounts)) {
+        if (count > maxCount) {
+          maxCount = count;
+          maxHour = parseInt(hour);
+        }
+      }
+      
+      // Convert to AM/PM format
+      const hourFormatted = maxHour % 12 === 0 ? 12 : maxHour % 12;
+      const amPm = maxHour < 12 ? 'AM' : 'PM';
+      
+      return `Most common around ${hourFormatted}${amPm} (${maxCount} occurrences)`;
+    }
+    
+    // Get improvement suggestion
+    function getImprovementSuggestion() {
+      if (appState.complaintEntries && appState.complaintEntries.length > 0) {
+        // Get the top complaint category for a suggestion
+        const topCategory = getTopCategory(appState.complaintCategories);
+        
+        // Sample suggestions by category
+        const suggestions = {
+          'interpersonal': 'Try practicing active listening and empathy in challenging interpersonal situations',
+          'delays': 'Consider building buffer time into your schedule to reduce stress from delays',
+          'quality': 'Focus on aspects you can control and setting clear expectations upfront',
+          'pricing': 'Practice gratitude for what you do have rather than focusing on costs',
+          'communication': 'Ask clarifying questions early and often to prevent misunderstandings',
+          'process': 'Look for workarounds or ways to suggest improvements to complex systems',
+          'emotional': 'Set clear boundaries and practice direct communication about your needs',
+          'other': 'Reflect on your patterns and try to identify common triggers for complaints'
+        };
+        
+        const categoryKey = Object.entries(appState.complaintCategories)
+          .reduce((max, [key, val]) => val > max[1] ? [key, val] : max, ['other', 0])[0];
+        
+        return suggestions[categoryKey] || 'Focus on recognizing complaints early and reframing them positively';
+      }
+      
+      return null;
+    }
+    
+    // Get challenge status
+    function getChallengeStatus() {
+      if (!appState.isStarted) return 'Not started';
+      
+      const totalDays = appState.complaintStreak + appState.excuseStreak;
+      
+      if (appState.complaintStreak >= 21 && appState.excuseStreak >= 21) {
+        return 'Complete! Congratulations!';
+      } else if (appState.complaintStreak >= 14 || appState.excuseStreak >= 14) {
+        return 'Excellent progress! You\'re more than halfway there.';
+      } else if (appState.complaintStreak >= 7 || appState.excuseStreak >= 7) {
+        return 'Great start! Keep going with your momentum.';
+      } else if (totalDays > 0) {
+        return 'Just starting out. Keep at it!';
+      } else {
+        return 'In progress. Every day is a new opportunity.';
+      }
+    }
+
     // Show notification
     function showNotification(message, duration = 5000) {
       elements.notificationText.textContent = message;
@@ -1682,7 +1934,7 @@
     // Show analysis popup
     function showAnalysis() {
       elements.analysisOverlay.style.display = 'flex';
-      // In a real implementation, you would generate the charts here
+      updateAnalysisData();
     }
 
     // Hide analysis popup
@@ -1698,6 +1950,10 @@
           const parsedState = JSON.parse(savedState);
           Object.assign(appState, parsedState);
           
+          // Ensure analysis entries arrays exist
+          if (!appState.complaintEntries) appState.complaintEntries = [];
+          if (!appState.excuseEntries) appState.excuseEntries = [];
+          
           // Check if challenge is started
           if (appState.isStarted) {
             elements.startBtn.disabled = true;
@@ -1706,6 +1962,7 @@
             elements.analysisBtn.disabled = false;
             
             updateDisplay();
+            updateAnalysisData();
             startComplaintTimer();
             startExcuseTimer();
           }
@@ -1738,11 +1995,25 @@
       
       elements.submitComplaintCategoryBtn.addEventListener('click', submitComplaintCategory);
       elements.submitExcuseCategoryBtn.addEventListener('click', submitExcuseCategory);
-      elements.submitJournalBtn.addEventListener('click', submitJournalEntry);
       
       elements.closeAnalysis.addEventListener('click', hideAnalysis);
       elements.notificationClose.addEventListener('click', () => {
         elements.notification.classList.remove('show');
+      });
+      
+      // Add listeners for 'Other' category to show/hide note field
+      elements.complaintOtherCheckbox.addEventListener('change', function() {
+        elements.complaintOtherNote.style.display = this.checked ? 'block' : 'none';
+        if (this.checked) {
+          setTimeout(() => elements.complaintOtherText.focus(), 100);
+        }
+      });
+      
+      elements.excuseOtherCheckbox.addEventListener('change', function() {
+        elements.excuseOtherNote.style.display = this.checked ? 'block' : 'none';
+        if (this.checked) {
+          setTimeout(() => elements.excuseOtherText.focus(), 100);
+        }
       });
       
       // Tab switching
@@ -1770,6 +2041,7 @@
       
       // Update display
       updateDisplay();
+      updateAnalysisData();
       
       // Show welcome notification after a short delay
       setTimeout(() => {
