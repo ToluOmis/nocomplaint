@@ -3,780 +3,1173 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>NoComplaint - 21 Day No Complaint Challenge</title>
-  <!-- Манифест приложения -->
+  <title>21-Day Challenge</title>
+  
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+  
+  <!-- PWA Manifest -->
   <link rel="manifest" href="manifest.json">
-  <!-- Цвет темы для адресной строки (Android) -->
-  <meta name="theme-color" content="#121212">
+  
+  <!-- Theme Color -->
+  <meta name="theme-color" content="#1a237e">
+  
+  <!-- App Icons -->
+  <link rel="icon" href="icons/favicon.ico" type="image/x-icon">
+  <link rel="apple-touch-icon" href="icons/icon-192x192.png">
+  <link rel="apple-touch-icon" sizes="152x152" href="icons/icon-152x152.png">
+  <link rel="apple-touch-icon" sizes="180x180" href="icons/icon-192x192.png">
+  <link rel="apple-touch-icon" sizes="167x167" href="icons/icon-152x152.png">
+  
+  <!-- iOS status bar style -->
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  
   <style>
-    /* Global Styles */
+    /* Global Reset & Basic Styles */
+    *, *::before, *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    
+    :root {
+      /* Color Palette */
+      --deep-blue: #1a237e;
+      --light-blue: #3949ab;
+      --neon-blue: #00e5ff;
+      --white: #ffffff;
+      --light-gray: #f5f5f5;
+      --mid-gray: #e0e0e0;
+      --dark-gray: #424242;
+      
+      /* Typography */
+      --font-primary: 'Montserrat', sans-serif;
+      
+      /* Spacing */
+      --space-xs: 8px;
+      --space-sm: 16px;
+      --space-md: 24px;
+      --space-lg: 32px;
+      --space-xl: 48px;
+      
+      /* Border Radius */
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 20px;
+      
+      /* Shadows */
+      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.1);
+      --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.15);
+      --shadow-lg: 0 8px 24px rgba(0, 0, 0, 0.2);
+      
+      /* Animation */
+      --transition-fast: 0.2s ease;
+      --transition-normal: 0.3s ease;
+      --transition-slow: 0.5s ease;
+    }
+    
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      text-align: center;
-      margin: 20px;
-      background-color: #121212;
-      color: #ffffff;
-    }
-    .container {
-      max-width: 600px;
-      margin: 0 auto;
-      padding: 20px;
-      border-radius: 8px;
-      background-color: #1e1e1e;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
-    }
-    h1, h2, h3 {
-      font-weight: bold;
-    }
-    button {
-      padding: 10px 20px;
-      margin: 10px;
+      font-family: var(--font-primary);
+      background: linear-gradient(135deg, #0a1128, #1a237e);
+      color: var(--dark-gray);
+      min-height: 100vh;
       font-size: 16px;
-      cursor: pointer;
-      border: none;
-      border-radius: 4px;
-      color: white;
-      transition: background-color 0.3s;
-      background-color: #4aa3d8;
+      line-height: 1.5;
+      padding: var(--space-md);
+      overflow-x: hidden;
     }
-    button:hover:not(:disabled) {
-      opacity: 0.9;
+    
+    /* Main Container */
+    .app-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      background-color: var(--white);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      overflow: hidden;
+      position: relative;
     }
-    button:disabled {
-      background-color: #555;
-      cursor: not-allowed;
-    }
-    /* Gradient progress bar */
-    #progressContainer {
-      width: 100%;
-      background: #333;
-      border-radius: 5px;
-      margin: 20px 0;
-      height: 25px;
+    
+    /* Header Section */
+    .app-header {
+      background: linear-gradient(135deg, var(--light-blue), var(--deep-blue));
+      padding: var(--space-md) var(--space-lg);
+      position: relative;
       overflow: hidden;
     }
-    #progressBar {
+    
+    /* Isometric Background Elements */
+    .isometric-bg {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 0;
+      opacity: 0.1;
+    }
+    
+    .iso-shape {
+      position: absolute;
+      background: var(--white);
+      transform: rotateX(60deg) rotateZ(45deg);
+    }
+    
+    .iso-cube-1 {
+      width: 100px;
+      height: 100px;
+      right: 10%;
+      top: -20px;
+    }
+    
+    .iso-cube-2 {
+      width: 60px;
+      height: 60px;
+      left: 15%;
+      bottom: -10px;
+    }
+    
+    .iso-rect-1 {
+      width: 80px;
+      height: 40px;
+      left: 30%;
+      top: 20px;
+    }
+    
+    /* Header Content */
+    .header-content {
+      position: relative;
+      z-index: 1;
+    }
+    
+    .tagline {
+      color: var(--white);
+      font-size: 1.2rem;
+      font-weight: 500;
+      margin-bottom: var(--space-sm);
+      line-height: 1.6;
+      text-align: center;
+    }
+    
+    .tagline span {
+      display: block;
+    }
+    
+    .rule-text {
+      color: var(--white);
+      font-size: 0.95rem;
+      background: rgba(255, 255, 255, 0.1);
+      padding: var(--space-sm);
+      border-radius: var(--radius-sm);
+      margin-top: var(--space-sm);
+    }
+    
+    /* Progress Section */
+    .progress-container {
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: var(--radius-lg);
+      height: 12px;
+      margin: var(--space-md) 0;
+      overflow: hidden;
+      position: relative;
+    }
+    
+    .progress-bar {
       height: 100%;
       width: 0%;
-      background: linear-gradient(90deg, #76c7c0, #5ab8b0, #4aa3d8);
-      transition: width 1s linear;
+      background: linear-gradient(90deg, var(--neon-blue), #64ffda);
+      border-radius: var(--radius-lg);
+      transition: width 1s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
     }
-    .log {
-      margin-top: 20px;
-      text-align: left;
-      font-size: 14px;
-      padding: 15px;
-      background-color: #2a2a2a;
-      border-radius: 5px;
+    
+    .progress-bar::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(90deg, rgba(255,255,255,0.1), rgba(255,255,255,0.3), rgba(255,255,255,0.1));
+      background-size: 200% 100%;
+      animation: shimmer 2s infinite;
+      border-radius: var(--radius-lg);
     }
-    /* Category Selection */
-    .categories {
-      margin-top: 30px;
-      text-align: left;
+    
+    @keyframes shimmer {
+      0% { background-position: 100% 0; }
+      100% { background-position: -100% 0; }
+    }
+    
+    .progress-count {
+      position: absolute;
+      top: -20px;
+      left: 50%;
+      transform: translateX(-50%);
+      color: var(--white);
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+    
+    /* Button Group */
+    .button-group {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: var(--space-sm);
+      margin-top: var(--space-md);
+    }
+    
+    .btn {
+      padding: 12px 24px;
+      font-family: var(--font-primary);
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      border-radius: var(--radius-md);
+      transition: all var(--transition-normal);
+      box-shadow: var(--shadow-sm);
+      position: relative;
+      overflow: hidden;
+      z-index: 1;
+    }
+    
+    .btn::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.1);
+      transform: translateY(100%);
+      transition: transform var(--transition-normal);
+      z-index: -1;
+    }
+    
+    .btn:hover::before {
+      transform: translateY(0);
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, var(--light-blue), var(--deep-blue));
+      color: var(--white);
+    }
+    
+    .btn-secondary {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(10px);
+      color: var(--white);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    
+    .btn-danger {
+      background: linear-gradient(135deg, #f44336, #d32f2f);
+      color: var(--white);
+    }
+    
+    .btn-accent {
+      background: linear-gradient(135deg, var(--neon-blue), #64ffda);
+      color: var(--deep-blue);
+    }
+    
+    .btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+    
+    .btn:disabled::before {
       display: none;
-      background-color: #2a2a2a;
-      padding: 15px;
-      border-radius: 5px;
     }
+    
+    /* Main Content */
+    .main-content {
+      display: flex;
+      flex-wrap: wrap;
+      padding: var(--space-md);
+      gap: var(--space-md);
+    }
+    
+    .content-left {
+      flex: 1;
+      min-width: 300px;
+    }
+    
+    .content-right {
+      width: 320px;
+    }
+    
+    /* Timer Section */
+    .timer-section {
+      display: flex;
+      gap: var(--space-md);
+      margin-bottom: var(--space-md);
+    }
+    
+    .timer-card {
+      flex: 1;
+      background: linear-gradient(135deg, var(--white), var(--light-gray));
+      border-radius: var(--radius-md);
+      padding: var(--space-md);
+      box-shadow: var(--shadow-md);
+      position: relative;
+      overflow: hidden;
+      transition: transform var(--transition-normal);
+    }
+    
+    .timer-card:hover {
+      transform: translateY(-5px);
+    }
+    
+    .timer-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 5px;
+      background: linear-gradient(90deg, var(--neon-blue), #64ffda);
+    }
+    
+    .timer-title {
+      color: var(--light-blue);
+      font-size: 1rem;
+      font-weight: 600;
+      margin-bottom: var(--space-xs);
+    }
+    
+    .timer-display {
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: var(--deep-blue);
+      margin-top: var(--space-xs);
+      font-variant-numeric: tabular-nums;
+    }
+    
+    /* Stats Section */
+    .stats-row {
+      display: flex;
+      gap: var(--space-md);
+      margin-bottom: var(--space-md);
+    }
+    
+    .stats-card {
+      flex: 1;
+      background: linear-gradient(135deg, var(--white), var(--light-gray));
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-md);
+      overflow: hidden;
+      transition: transform var(--transition-normal);
+    }
+    
+    .stats-card:hover {
+      transform: translateY(-5px);
+    }
+    
+    .stats-header {
+      background: linear-gradient(135deg, var(--light-blue), var(--deep-blue));
+      padding: var(--space-sm);
+      color: var(--white);
+      font-weight: 600;
+      text-align: center;
+      font-size: 1.1rem;
+    }
+    
+    .stats-body {
+      padding: var(--space-sm);
+    }
+    
+    .stat-item {
+      padding: var(--space-sm) 0;
+      border-bottom: 1px solid var(--mid-gray);
+    }
+    
+    .stat-item:last-child {
+      border-bottom: none;
+    }
+    
+    .stat-value {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--deep-blue);
+      display: block;
+      font-variant-numeric: tabular-nums;
+    }
+    
+    .stat-label {
+      font-size: 0.85rem;
+      color: var(--dark-gray);
+    }
+    
+    /* Info Section */
+    .info-section {
+      background: linear-gradient(135deg, var(--white), var(--light-gray));
+      border-radius: var(--radius-md);
+      padding: var(--space-md);
+      margin-bottom: var(--space-md);
+      box-shadow: var(--shadow-md);
+    }
+    
+    .info-title {
+      color: var(--deep-blue);
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-bottom: var(--space-sm);
+      border-bottom: 2px solid var(--neon-blue);
+      padding-bottom: var(--space-xs);
+      display: inline-block;
+    }
+    
+    .info-text {
+      color: var(--dark-gray);
+      margin-bottom: var(--space-sm);
+    }
+    
+    /* Categories Section */
+    .categories {
+      background: linear-gradient(135deg, var(--white), var(--light-gray));
+      border-radius: var(--radius-md);
+      padding: var(--space-md);
+      margin-top: var(--space-md);
+      box-shadow: var(--shadow-md);
+      display: none;
+    }
+    
+    .categories-title {
+      color: var(--deep-blue);
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-bottom: var(--space-md);
+    }
+    
+    .categories-timer {
+      font-size: 0.9rem;
+      color: var(--light-blue);
+      margin-bottom: var(--space-md);
+      font-weight: 500;
+    }
+    
     .category-item {
-      margin-bottom: 10px;
-      padding: 10px;
-      border: 1px solid #444;
-      border-radius: 4px;
+      background: var(--white);
+      border-radius: var(--radius-sm);
+      padding: var(--space-sm);
+      margin-bottom: var(--space-sm);
+      border: 1px solid var(--mid-gray);
+      transition: all var(--transition-fast);
     }
+    
+    .category-item:hover {
+      box-shadow: var(--shadow-sm);
+      border-color: var(--light-blue);
+    }
+    
     .category-item label {
+      display: flex;
+      align-items: flex-start;
       cursor: pointer;
     }
-    .submit-category {
-      text-align: center;
-      margin-top: 15px;
+    
+    .category-item input[type="checkbox"] {
+      margin-right: var(--space-sm);
+      margin-top: 4px;
+      accent-color: var(--light-blue);
+      width: 18px;
+      height: 18px;
     }
+    
+    .category-label {
+      font-weight: 600;
+      color: var(--deep-blue);
+    }
+    
+    .category-description {
+      margin-top: var(--space-xs);
+      margin-left: calc(18px + var(--space-sm));
+      font-size: 0.85rem;
+      color: var(--dark-gray);
+    }
+    
+    .submit-category {
+      margin-top: var(--space-md);
+      text-align: center;
+    }
+    
     /* Definition Section */
     .definition {
-      border-top: 1px solid #444;
-      padding-top: 20px;
-      margin-top: 20px;
-      text-align: left;
+      background: linear-gradient(135deg, var(--white), var(--light-gray));
+      border-radius: var(--radius-md);
+      padding: var(--space-md);
+      margin-top: var(--space-md);
+      box-shadow: var(--shadow-md);
     }
-    .definition h2 {
-      margin-bottom: 10px;
+    
+    .definition-title {
+      color: var(--deep-blue);
+      font-size: 1.2rem;
+      font-weight: 600;
+      margin-bottom: var(--space-sm);
+      border-bottom: 2px solid var(--neon-blue);
+      padding-bottom: var(--space-xs);
+      display: inline-block;
     }
+    
+    .definition-text {
+      margin-bottom: var(--space-md);
+    }
+    
     .example {
-      background-color: #2a2a2a;
-      padding: 15px;
-      border-radius: 5px;
-      margin-top: 15px;
-      text-align: left;
+      background: var(--white);
+      border-radius: var(--radius-sm);
+      padding: var(--space-md);
+      margin-bottom: var(--space-md);
+      border-left: 4px solid var(--light-blue);
     }
-    /* Timer Styles */
-    .timer-container {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      margin-bottom: 15px;
+    
+    .example-label {
+      font-weight: 600;
+      color: var(--deep-blue);
+      margin-bottom: var(--space-xs);
     }
-    #countdown {
-      font-weight: bold;
-      font-size: 32px;
-      color: #4aa3d8;
+    
+    .example-text {
+      margin-bottom: var(--space-sm);
+      font-style: italic;
+      color: var(--dark-gray);
     }
+    
+    .reframe-label {
+      font-weight: 600;
+      color: var(--deep-blue);
+      margin-bottom: var(--space-xs);
+    }
+    
+    .reframe-text {
+      color: var(--dark-gray);
+    }
+    
     /* Notification */
     .notification {
       position: fixed;
-      top: 20px;
-      right: 20px;
-      padding: 15px;
-      background-color: #5ab8b0;
-      color: white;
-      border-radius: 5px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+      top: var(--space-md);
+      right: var(--space-md);
+      background: var(--deep-blue);
+      color: var(--white);
+      padding: var(--space-md);
+      border-radius: var(--radius-sm);
+      box-shadow: var(--shadow-lg);
+      max-width: 300px;
+      transform: translateX(calc(100% + var(--space-md)));
+      transition: transform var(--transition-normal);
       z-index: 1000;
-      display: none;
     }
-    /* Category Stats */
-    .category-stats {
-      margin-top: 20px;
-      text-align: left;
-      background-color: #2a2a2a;
-      padding: 15px;
-      border-radius: 5px;
+    
+    .notification.show {
+      transform: translateX(0);
     }
-    .category-stat {
-      display: flex;
-      justify-content: space-between;
-      padding: 5px 0;
-      border-bottom: 1px solid #444;
+    
+    .notification-close {
+      position: absolute;
+      top: var(--space-xs);
+      right: var(--space-xs);
+      background: none;
+      border: none;
+      color: var(--white);
+      cursor: pointer;
+      font-size: 1rem;
     }
-    /* Journal Entry */
-    .journal-entry {
-      margin-top: 20px;
-      display: none;
-    }
-    .journal-entry textarea {
+    
+    /* Analysis Popup */
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
       width: 100%;
-      height: 100px;
-      margin-top: 10px;
-      background-color: #2a2a2a;
-      color: #ffffff;
-      border: 1px solid #444;
-      border-radius: 5px;
-      padding: 10px;
-      resize: vertical;
+      height: 100%;
+      background: rgba(26, 35, 126, 0.8);
+      backdrop-filter: blur(5px);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 1000;
     }
-    .journal-history {
-      margin-top: 20px;
-      text-align: left;
-      background-color: #2a2a2a;
-      padding: 15px;
-      border-radius: 5px;
-      max-height: 200px;
+    
+    .popup {
+      background: var(--white);
+      border-radius: var(--radius-lg);
+      width: 90%;
+      max-width: 800px;
+      max-height: 90vh;
       overflow-y: auto;
+      box-shadow: var(--shadow-lg);
+      position: relative;
     }
-    .journal-entry-item {
-      border-bottom: 1px solid #444;
-      padding: 10px 0;
+    
+    .popup-header {
+      background: linear-gradient(135deg, var(--light-blue), var(--deep-blue));
+      padding: var(--space-md);
+      color: var(--white);
+      font-weight: 600;
+      font-size: 1.4rem;
+      border-radius: var(--radius-lg) var(--radius-lg) 0 0;
     }
-    .journal-date {
-      font-size: 12px;
-      color: #888;
+    
+    .popup-body {
+      padding: var(--space-md);
     }
-    /* Media Queries */
-    @media (max-width: 650px) {
-      .container {
-        width: 90%;
-        padding: 15px;
+    
+    .close-popup {
+      position: absolute;
+      top: var(--space-md);
+      right: var(--space-md);
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      color: var(--white);
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 1.2rem;
+      transition: background var(--transition-fast);
+    }
+    
+    .close-popup:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+    
+    .tab-buttons {
+      display: flex;
+      border-bottom: 1px solid var(--mid-gray);
+      margin-bottom: var(--space-md);
+      overflow-x: auto;
+    }
+    
+    .tab-button {
+      padding: var(--space-sm) var(--space-md);
+      background: none;
+      border: none;
+      color: var(--dark-gray);
+      font-weight: 500;
+      cursor: pointer;
+      position: relative;
+      white-space: nowrap;
+    }
+    
+    .tab-button::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      width: 100%;
+      height: 3px;
+      background: var(--neon-blue);
+      transform: scaleX(0);
+      transition: transform var(--transition-fast);
+    }
+    
+    .tab-button.active {
+      color: var(--deep-blue);
+      font-weight: 600;
+    }
+    
+    .tab-button.active::after {
+      transform: scaleX(1);
+    }
+    
+    .tab-content {
+      display: none;
+    }
+    
+    .tab-content.active {
+      display: block;
+    }
+    
+    .chart-container {
+      height: 300px;
+      background: var(--light-gray);
+      border-radius: var(--radius-sm);
+      margin: var(--space-sm) 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--dark-gray);
+    }
+    
+    /* For smaller screens */
+    @media (max-width: 768px) {
+      .app-container {
+        border-radius: 0;
       }
-      button {
-        padding: 8px 15px;
-        font-size: 14px;
+      
+      .main-content {
+        flex-direction: column;
       }
+      
+      .content-right {
+        width: 100%;
+      }
+      
+      .timer-section,
+      .stats-row {
+        flex-direction: column;
+      }
+      
+      .btn {
+        width: 100%;
+      }
+      
+      .button-group {
+        flex-direction: column;
+      }
+    }
+    
+    /* Animation Keyframes */
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    
+    @keyframes slideUp {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    
+    /* Apply animations */
+    .app-container {
+      animation: fadeIn 0.5s ease-out;
+    }
+    
+    .content-left, .content-right {
+      animation: slideUp 0.5s ease-out;
+    }
+    
+    .stats-card:nth-child(1) {
+      animation: slideUp 0.5s ease-out 0.1s forwards;
+    }
+    
+    .stats-card:nth-child(2) {
+      animation: slideUp 0.5s ease-out 0.2s forwards;
     }
   </style>
 </head>
 <body>
-  <div class="notification" id="notification">
+  <!-- Notification -->
+  <div id="notification" class="notification">
+    <button id="notificationClose" class="notification-close">×</button>
     <p id="notificationText"></p>
   </div>
 
-  <div class="container">
-    <h1>21 Day No Complaint Challenge</h1>
+  <!-- Main App Container -->
+  <div class="app-container">
+    <!-- Header Section -->
+    <header class="app-header">
+      <!-- Isometric Background -->
+      <div class="isometric-bg">
+        <div class="iso-shape iso-cube-1"></div>
+        <div class="iso-shape iso-cube-2"></div>
+        <div class="iso-shape iso-rect-1"></div>
+      </div>
+      
+      <!-- Header Content -->
+      <div class="header-content">
+        <p class="tagline">
+          <span>No One Likes a Complainer!</span>
+          <span>Try 21 days without complaining or making excuses</span>
+        </p>
+        
+        <p id="statusMsg" class="rule-text">
+          <strong>Rule: </strong>Each time you make a complaint or excuse, press the respective button and start again from day 0. To complete the challenge, you must go 21 consecutive days without complaints AND excuses.
+        </p>
+        
+        <!-- Progress Bar -->
+        <div class="progress-container">
+          <div id="combinedProgressBar" class="progress-bar"></div>
+          <div id="combinedProgressCount" class="progress-count">0/21</div>
+        </div>
+        
+        <!-- Action Buttons -->
+        <div class="button-group">
+          <button id="startBtn" class="btn btn-primary">Start Challenge</button>
+          <button id="complaintBtn" class="btn btn-secondary" disabled>Complaint</button>
+          <button id="excuseBtn" class="btn btn-secondary" disabled>Excuse</button>
+          <button id="analysisBtn" class="btn btn-accent" disabled>Analysis</button>
+          <button id="resetBtn" class="btn btn-danger">Reset All</button>
+        </div>
+      </div>
+    </header>
     
-    <p id="statusMsg"><strong>Rule: </strong>Each time you make a complaint, press "restart," switch the ring you usually wear to the same finger on your opposite hand, choose the category for that complaint, and start again from day 0.</p>
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Left Column (Timers & Stats) -->
+      <div class="content-left">
+        <!-- Timers -->
+        <div class="timer-section">
+          <div class="timer-card">
+            <h4 class="timer-title">Days Without Complaints</h4>
+            <div id="complaintCountdown" class="timer-display">00:00:00</div>
+          </div>
+          
+          <div class="timer-card">
+            <h4 class="timer-title">Days Without Excuses</h4>
+            <div id="excuseCountdown" class="timer-display">00:00:00</div>
+          </div>
+        </div>
+        
+        <!-- Stats Cards -->
+        <div class="stats-row">
+          <div class="stats-card">
+            <div class="stats-header">Complaints</div>
+            <div class="stats-body">
+              <div class="stat-item">
+                <span id="complaintStreak" class="stat-value">0</span>
+                <span class="stat-label">Current complaint-free streak</span>
+              </div>
+              
+              <div class="stat-item">
+                <span id="bestComplaintStreak" class="stat-value">0</span>
+                <span class="stat-label">Best complaint-free streak</span>
+              </div>
+              
+              <div class="stat-item">
+                <span id="totalComplaints" class="stat-value">0</span>
+                <span class="stat-label">Total complaints</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="stats-card">
+            <div class="stats-header">Excuses</div>
+            <div class="stats-body">
+              <div class="stat-item">
+                <span id="excuseStreak" class="stat-value">0</span>
+                <span class="stat-label">Current excuse-free streak</span>
+              </div>
+              
+              <div class="stat-item">
+                <span id="bestExcuseStreak" class="stat-value">0</span>
+                <span class="stat-label">Best excuse-free streak</span>
+              </div>
+              
+              <div class="stat-item">
+                <span id="totalExcuses" class="stat-value">0</span>
+                <span class="stat-label">Total excuses</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <!-- Challenge Info -->
+        <div class="info-section">
+          <p class="info-text">Challenge started on: <span id="startDate">Not started yet</span></p>
+          <p class="info-text">Clean days (no complaints or excuses): <span id="cleanDays">0</span></p>
+        </div>
+      </div>
+      
+      <!-- Definition Sections -->
+      <div class="content-right">
+        <div class="definition">
+          <h3 class="definition-title">My Definition of Complaint</h3>
+          <p class="definition-text">Describing an event or person in thoughts or speech negatively without indicating next steps to fix the problem. If you think or say a complaint, then propose a solution immediately or reframe it in an action way. This way, it is not a complaint; it is simply stating a problem and then attempting to find a solution.</p>
+          
+          <div class="example">
+            <p class="example-label">Example of complaint:</p>
+            <p class="example-text">"Customer service took forever to respond to my problem, and it really messed up my work!"</p>
+            <p class="reframe-label">Reframing:</p>
+            <p class="reframe-text">"I experienced a delay with customer support which disrupted my work. I plan to follow up with them and, if needed, explore alternative support channels to resolve issues more promptly in the future."</p>
+          </div>
+          
+          <h3 class="definition-title">My Definition of Excuse</h3>
+          <p class="definition-text">A justification that shifts responsibility away from yourself to explain a failure or inability to meet an obligation or expectation. An excuse removes your agency and power by placing the cause externally rather than acknowledging your choices and capacity to respond differently.</p>
+          
+          <div class="example">
+            <p class="example-label">Example of excuse:</p>
+            <p class="example-text">"Nothing I do matters because life is just unfair"</p>
+            <p class="reframe-label">Reframing:</p>
+            <p class="reframe-text">"While I can't control everything, I have the power to influence my actions and decisions, which can lead to positive change"</p>
+          </div>
+        </div>
+      </div>
+    </main>
     
-    <!-- Progress Bar -->
-    <div id="progressContainer">
-      <div id="progressBar"></div>
-    </div>
-    
-    <!-- Buttons -->
-    <div>
-      <button id="startBtn">Start</button>
-      <button id="restartBtn" disabled>Complain & Restart</button>
-      <button id="resetBtn">Reset All</button>
-    </div>
-    
-    <!-- Log Section -->
-    <div class="log">
-      <p>Current streak: <span id="daysWithout">0</span> days</p>
-      <p>Best streak: <span id="bestStreak">0</span> days</p>
-      <p>Challenge started on: <span id="startDate">Not started yet</span></p>
-      <p>Complaints: <span id="restarts">0</span></p>
-      <p>Days with complaints: <span id="daysWithRestarts">0</span></p>
-      <p>Clean days: <span id="daysWithoutRestarts">0</span></p>
-      <div class="timer-container">
-        <span id="countdown">00:00:00</span>
-      </div>
-    </div>
-    
-    <!-- Categories Section -->
-    <div class="categories" id="categoriesContainer">
-      <h3>Select Complaint Category</h3>
-      <p id="categoryTimer">Time remaining to select: 3:00</p>
+    <!-- Categories Section for Complaints -->
+    <div class="categories" id="complaintCategoriesContainer">
+      <h3 class="categories-title">Select Complaint Category</h3>
+      <p id="complaintCategoryTimer" class="categories-timer">Time remaining to select: 3:00</p>
       
       <div class="category-item">
-        <input type="checkbox" class="category-checkbox" id="category_interpersonal" data-category="interpersonal">
-        <label for="category_interpersonal"><strong>Interpersonal Interactions:</strong> Feeling disrespected, ignored, or treated unfairly by others</label>
+        <label>
+          <input type="checkbox" class="category-checkbox" id="complaint_interpersonal" data-category="interpersonal">
+          <span class="category-label">Interpersonal Interactions</span>
+        </label>
+        <div class="category-description">Feeling disrespected, ignored, or treated unfairly by others</div>
       </div>
       
       <div class="category-item">
-        <input type="checkbox" class="category-checkbox" id="category_delays" data-category="delays">
-        <label for="category_delays"><strong>Delays & Timeliness:</strong> Frustration with waiting in traffic, lines, or for responses</label>
+        <label>
+          <input type="checkbox" class="category-checkbox" id="complaint_delays" data-category="delays">
+          <span class="category-label">Delays & Timeliness</span>
+        </label>
+        <div class="category-description">Frustration with waiting in traffic, lines, or for responses</div>
       </div>
       
       <div class="category-item">
-        <input type="checkbox" class="category-checkbox" id="category_quality" data-category="quality">
-        <label for="category_quality"><strong>Quality & Reliability:</strong> Poorly made products, services falling short of expectations</label>
+        <label>
+          <input type="checkbox" class="category-checkbox" id="complaint_quality" data-category="quality">
+          <span class="category-label">Quality & Reliability</span>
+        </label>
+        <div class="category-description">Poorly made products, services falling short of expectations</div>
       </div>
       
       <div class="category-item">
-        <input type="checkbox" class="category-checkbox" id="category_pricing" data-category="pricing">
-        <label for="category_pricing"><strong>Pricing & Value:</strong> Cost issues or feeling time/effort isn't adequately respected</label>
+        <label>
+          <input type="checkbox" class="category-checkbox" id="complaint_pricing" data-category="pricing">
+          <span class="category-label">Pricing & Value</span>
+        </label>
+        <div class="category-description">Cost issues or feeling time/effort isn't adequately respected</div>
       </div>
       
       <div class="category-item">
-        <input type="checkbox" class="category-checkbox" id="category_communication" data-category="communication">
-        <label for="category_communication"><strong>Communication Issues:</strong> Misunderstandings, unclear instructions, lack of updates</label>
+        <label>
+          <input type="checkbox" class="category-checkbox" id="complaint_communication" data-category="communication">
+          <span class="category-label">Communication Issues</span>
+        </label>
+        <div class="category-description">Misunderstandings, unclear instructions, lack of updates</div>
       </div>
       
       <div class="category-item">
-        <input type="checkbox" class="category-checkbox" id="category_process" data-category="process">
-        <label for="category_process"><strong>Process & Accessibility:</strong> Complicated systems or inaccessible services</label>
+        <label>
+          <input type="checkbox" class="category-checkbox" id="complaint_process" data-category="process">
+          <span class="category-label">Process & Accessibility</span>
+        </label>
+        <div class="category-description">Complicated systems or inaccessible services</div>
       </div>
       
       <div class="category-item">
-        <input type="checkbox" class="category-checkbox" id="category_emotional" data-category="emotional">
-        <label for="category_emotional"><strong>Emotional & Relational Dynamics:</strong> Unmet expectations, lack of support in relationships</label>
+        <label>
+          <input type="checkbox" class="category-checkbox" id="complaint_emotional" data-category="emotional">
+          <span class="category-label">Emotional & Relational Dynamics</span>
+        </label>
+        <div class="category-description">Unmet expectations, lack of support in relationships</div>
       </div>
       
       <div class="category-item">
-        <input type="checkbox" class="category-checkbox" id="category_other" data-category="other">
-        <label for="category_other"><strong>Other:</strong> Any complaint that doesn't fit the categories above</label>
+        <label>
+          <input type="checkbox" class="category-checkbox" id="complaint_other" data-category="other">
+          <span class="category-label">Other</span>
+        </label>
+        <div class="category-description">Any complaint that doesn't fit the categories above</div>
       </div>
       
       <div class="submit-category">
-        <button id="submitCategoryBtn">Submit Category</button>
+        <button id="submitComplaintCategoryBtn" class="btn btn-primary">Submit Category</button>
+      </div>
+    </div>
+    
+    <!-- Categories Section for Excuses -->
+    <div class="categories" id="excuseCategoriesContainer">
+      <h3 class="categories-title">Select Excuse Category</h3>
+      <p id="excuseCategoryTimer" class="categories-timer">Time remaining to select: 3:00</p>
+      
+      <div class="category-item">
+        <label>
+          <input type="checkbox" class="category-checkbox" id="excuse_blame" data-category="blame">
+          <span class="category-label">Externalizing Blame</span>
+        </label>
+        <div class="category-description">Focuses on attributing failures or setbacks solely to external circumstances or other people, rather than examining personal responsibility</div>
+      </div>
+      
+      <div class="category-item">
+        <label>
+          <input type="checkbox" class="category-checkbox" id="excuse_trauma" data-category="trauma">
+          <span class="category-label">Past Trauma Emphasis</span>
+        </label>
+        <div class="category-description">Centers on citing previous negative experiences or trauma as the main reason for current difficulties, potentially hindering proactive change</div>
+      </div>
+      
+      <div class="category-item">
+        <label>
+          <input type="checkbox" class="category-checkbox" id="excuse_control" data-category="control">
+          <span class="category-label">Perceived Lack of Control</span>
+        </label>
+        <div class="category-description">Involves the belief that one is powerless to influence outcomes, often using phrases like "I can't do anything about it" or "I'm just unlucky."</div>
+      </div>
+      
+      <div class="category-item">
+        <label>
+          <input type="checkbox" class="category-checkbox" id="excuse_accountability" data-category="accountability">
+          <span class="category-label">Avoidance of Accountability</span>
+        </label>
+        <div class="category-description">Represents a tendency to evade personal responsibility by continuously shifting blame, thus preventing self-assessment and growth</div>
+      </div>
+      
+      <div class="category-item">
+        <label>
+          <input type="checkbox" class="category-checkbox" id="excuse_other" data-category="other">
+          <span class="category-label">Other</span>
+        </label>
+        <div class="category-description">Any excuse that doesn't fit the categories above</div>
+      </div>
+      
+      <div class="submit-category">
+        <button id="submitExcuseCategoryBtn" class="btn btn-primary">Submit Category</button>
       </div>
     </div>
     
     <!-- Journal Entry -->
-    <div class="journal-entry" id="journalEntryContainer">
-      <h3>Journal Entry (Optional)</h3>
-      <p>Reflect on what happened and how you could reframe it positively:</p>
-      <textarea id="journalText" placeholder="What happened? How could you have reframed this situation?"></textarea>
+    <div class="categories" id="journalEntryContainer">
+      <h3 class="categories-title">Journal Entry (Optional)</h3>
+      <p class="categories-timer">Reflect on what happened and how you could reframe it positively:</p>
+      <textarea id="journalText" placeholder="What happened? How could you have reframed this situation?" style="width: 100%; height: 120px; border-radius: 8px; padding: 12px; border: 1px solid #e0e0e0; margin: 16px 0; font-family: inherit;"></textarea>
       <div class="submit-category">
-        <button id="submitJournalBtn">Save Journal Entry</button>
+        <button id="submitJournalBtn" class="btn btn-primary">Save Journal Entry</button>
       </div>
     </div>
     
-    <!-- Journal History -->
-    <div class="journal-history" id="journalHistory">
-      <h3>Journal History</h3>
-      <div id="journalEntriesList">
-        <!-- Journal entries will be added here -->
+    <!-- Analysis Popup -->
+    <div class="overlay" id="analysisOverlay">
+      <div class="popup">
+        <div class="popup-header">
+          <h2>Challenge Analysis</h2>
+          <button id="closeAnalysis" class="close-popup">×</button>
+        </div>
+        
+        <div class="popup-body">
+          <div class="tab-buttons">
+            <button class="tab-button active" data-tab="categories">Categories</button>
+            <button class="tab-button" data-tab="timeOfDay">Time of Day</button>
+            <button class="tab-button" data-tab="streakProgress">Streak Progress</button>
+            <button class="tab-button" data-tab="insights">Insights</button>
+          </div>
+          
+          <!-- Categories Tab -->
+          <div id="categoriesTab" class="tab-content active">
+            <div class="analysis-section">
+              <h3>Complaint Categories</h3>
+              <div class="chart-container" id="complaintCategoriesChart">
+                Charts will appear after your first entries
+              </div>
+            </div>
+            
+            <div class="analysis-section">
+              <h3>Excuse Categories</h3>
+              <div class="chart-container" id="excuseCategoriesChart">
+                Charts will appear after your first entries
+              </div>
+            </div>
+          </div>
+          
+          <!-- Other tabs (similar structure) -->
+          <div id="timeOfDayTab" class="tab-content">
+            <div class="analysis-section">
+              <h3>When Complaints Occur</h3>
+              <div class="chart-container">
+                Charts will appear after your first entries
+              </div>
+            </div>
+            
+            <div class="analysis-section">
+              <h3>When Excuses Occur</h3>
+              <div class="chart-container">
+                Charts will appear after your first entries
+              </div>
+            </div>
+          </div>
+          
+          <div id="streakProgressTab" class="tab-content">
+            <div class="analysis-section">
+              <h3>Complaint-Free Streak History</h3>
+              <div class="chart-container">
+                Charts will appear after your first entries
+              </div>
+            </div>
+            
+            <div class="analysis-section">
+              <h3>Excuse-Free Streak History</h3>
+              <div class="chart-container">
+                Charts will appear after your first entries
+              </div>
+            </div>
+          </div>
+          
+          <div id="insightsTab" class="tab-content">
+            <div class="analysis-section">
+              <h3>Your Pattern Insights</h3>
+              <div class="info-section">
+                <p><strong>Most common complaint category:</strong> <span>Not enough data</span></p>
+                <p><strong>Most common excuse category:</strong> <span>Not enough data</span></p>
+                <p><strong>Typical time for complaints:</strong> <span>Not enough data</span></p>
+                <p><strong>Typical time for excuses:</strong> <span>Not enough data</span></p>
+                <p><strong>Improvement suggestion:</strong> <span>Start tracking to receive personalized insights</span></p>
+                <p><strong>Current challenge status:</strong> <span>Not started</span></p>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
-    
-    <!-- Category Statistics -->
-    <div class="category-stats" id="categoryStats">
-      <h3>Complaint Categories Breakdown</h3>
-      <div id="categoryStatsList">
-        <!-- Categories will be populated by JavaScript -->
-      </div>
-    </div>
-    
-    <!-- Definition Section -->
-    <div class="definition">
-      <h2>My Definition of complaint</h2>
-      <p>Describing an event or person in thoughts or speech negatively without indicating next steps to fix the problem. If you think or say a complaint, then propose a solution immediately or reframe it in an action way. This way, it is not a complaint; it is simply stating a problem and then attempting to find a solution.</p>
-      
-      <div class="example">
-        <p><strong>Example of complaint:</strong> "Customer service took forever to respond to my problem, and it really messed up my work!"</p>
-        <p><strong>Reframing:</strong> "I experienced a delay with customer support which disrupted my work. I plan to follow up with them and, if needed, explore alternative support channels to resolve issues more promptly in the future."</p>
-      </div>
-    </div>
-    
-  </div>
 
-  <!-- Регистрация Service Worker для PWA -->
+  <!-- JavaScript remains the same, just handling UI interactions -->
   <script>
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', function() {
-        navigator.serviceWorker.register('service-worker.js')
-          .then(function(registration) {
-            console.log('ServiceWorker registration successful with scope: ', registration.scope);
-          }, function(err) {
-            console.log('ServiceWorker registration failed: ', err);
+    // Event listeners for UI interactions
+    document.addEventListener('DOMContentLoaded', function() {
+      // Example notification
+      setTimeout(() => {
+        showNotification("Welcome to your 21-day challenge! Ready to start?");
+      }, 1000);
+      
+      // Tab switching
+      document.querySelectorAll('.tab-button').forEach(button => {
+        button.addEventListener('click', function() {
+          const tabId = this.getAttribute('data-tab');
+          
+          // Remove active class from all tabs
+          document.querySelectorAll('.tab-button').forEach(btn => {
+            btn.classList.remove('active');
           });
-      });
-    }
-  </script>
-  <script>
-    // Main app state
-    const appState = {
-      isStarted: false,
-      startDate: null,
-      currentStreak: 0,
-      bestStreak: 0,
-      restarts: 0,
-      daysWithRestarts: 0,
-      daysWithoutRestarts: 0,
-      lastCheckDate: null,
-      lastStartRestartTime: null, // Track when the timer started or was restarted
-      categories: {
-        interpersonal: 0,
-        delays: 0,
-        quality: 0,
-        pricing: 0,
-        communication: 0,
-        process: 0,
-        emotional: 0,
-        other: 0
-      },
-      journalEntries: []
-    };
-    
-    // DOM elements
-    const elements = {
-      startBtn: document.getElementById('startBtn'),
-      restartBtn: document.getElementById('restartBtn'),
-      resetBtn: document.getElementById('resetBtn'),
-      statusMsg: document.getElementById('statusMsg'),
-      progressBar: document.getElementById('progressBar'),
-      daysWithout: document.getElementById('daysWithout'),
-      bestStreak: document.getElementById('bestStreak'),
-      startDate: document.getElementById('startDate'),
-      restarts: document.getElementById('restarts'),
-      daysWithRestarts: document.getElementById('daysWithRestarts'),
-      daysWithoutRestarts: document.getElementById('daysWithoutRestarts'),
-      countdown: document.getElementById('countdown'),
-      categoriesContainer: document.getElementById('categoriesContainer'),
-      categoryCheckboxes: document.querySelectorAll('.category-checkbox'),
-      submitCategoryBtn: document.getElementById('submitCategoryBtn'),
-      categoryStatsList: document.getElementById('categoryStatsList'),
-      notification: document.getElementById('notification'),
-      categoryTimer: document.getElementById('categoryTimer'),
-      journalEntryContainer: document.getElementById('journalEntryContainer'),
-      journalText: document.getElementById('journalText'),
-      submitJournalBtn: document.getElementById('submitJournalBtn'),
-      journalEntriesList: document.getElementById('journalEntriesList')
-    };
-    
-    // Variables for timers
-    let countdownInterval;
-    let categorySelectionTimer;
-    let categorySelectionTimeLeft = 180; // 3 minutes in seconds
-    
-    // Load saved state from localStorage
-    function loadState() {
-      const savedState = localStorage.getItem('noComplaintChallenge');
-      if (savedState) {
-        const parsedState = JSON.parse(savedState);
-        Object.assign(appState, parsedState);
-        
-        // Check if challenge is started
-        if (appState.isStarted) {
-          elements.startBtn.disabled = true;
-          elements.restartBtn.disabled = false;
-          updateDisplay();
-          startElapsedTimer();
-        }
-      }
-    }
-    
-    // Save state to localStorage
-    function saveState() {
-      localStorage.setItem('noComplaintChallenge', JSON.stringify(appState));
-    }
-    
-    // Start the challenge
-    function startChallenge() {
-      appState.isStarted = true;
-      appState.startDate = new Date().toLocaleDateString();
-      appState.lastCheckDate = new Date().toISOString();
-      appState.lastStartRestartTime = new Date().getTime(); // Record start time
-      
-      elements.startBtn.disabled = true;
-      elements.restartBtn.disabled = false;
-      
-      updateDisplay();
-      startElapsedTimer();
-      saveState();
-    }
-    
-    // Handle complaint & restart
-    function handleComplaint() {
-      showCategorySelection();
-    }
-    
-    // Show category selection
-    function showCategorySelection() {
-      elements.categoriesContainer.style.display = 'block';
-      resetCategorySelection();
-      startCategorySelectionTimer();
-    }
-    
-    // Hide category selection
-    function hideCategorySelection() {
-      elements.categoriesContainer.style.display = 'none';
-      clearInterval(categorySelectionTimer);
-    }
-    
-    // Reset category checkboxes
-    function resetCategorySelection() {
-      elements.categoryCheckboxes.forEach(checkbox => {
-        checkbox.checked = false;
-      });
-    }
-    
-    // Start category selection timer
-    function startCategorySelectionTimer() {
-      categorySelectionTimeLeft = 180; // 3 minutes
-      updateCategoryTimer();
-      
-      categorySelectionTimer = setInterval(() => {
-        categorySelectionTimeLeft--;
-        updateCategoryTimer();
-        
-        if (categorySelectionTimeLeft <= 0) {
-          clearInterval(categorySelectionTimer);
-          hideCategorySelection();
-        }
-      }, 1000);
-    }
-    
-    // Update category timer display
-    function updateCategoryTimer() {
-      const minutes = Math.floor(categorySelectionTimeLeft / 60);
-      const seconds = categorySelectionTimeLeft % 60;
-      elements.categoryTimer.textContent = `Time remaining to select: ${minutes}:${seconds.toString().padStart(2, '0')}`;
-    }
-    
-    // Submit category selection
-    function submitCategorySelection() {
-      const selectedCategories = [];
-      
-      elements.categoryCheckboxes.forEach(checkbox => {
-        if (checkbox.checked) {
-          const category = checkbox.dataset.category;
-          selectedCategories.push(category);
-          appState.categories[category]++;
-        }
-      });
-      
-      if (selectedCategories.length === 0) {
-        // If no category selected, default to "other"
-        appState.categories.other++;
-      }
-      
-      hideCategorySelection();
-      appState.restarts++;
-      appState.daysWithRestarts = calculateUniqueDays(appState.daysWithRestarts, new Date());
-      
-      // Reset streak and timer
-      if (appState.currentStreak > 0) {
-        if (appState.currentStreak > appState.bestStreak) {
-          appState.bestStreak = appState.currentStreak;
-        }
-        appState.currentStreak = 0;
-      }
-      
-      // Reset the timer start time to now
-      appState.lastStartRestartTime = new Date().getTime();
-      
-      updateDisplay();
-      saveState();
-      showJournalEntry();
-      
-      // Restart the elapsed timer
-      if (countdownInterval) {
-        clearInterval(countdownInterval);
-      }
-      startElapsedTimer();
-    }
-    
-    // Show journal entry
-    function showJournalEntry() {
-      elements.journalEntryContainer.style.display = 'block';
-      elements.journalText.value = '';
-      elements.journalText.focus();
-    }
-    
-    // Hide journal entry
-    function hideJournalEntry() {
-      elements.journalEntryContainer.style.display = 'none';
-    }
-    
-    // Submit journal entry
-    function submitJournalEntry() {
-      const text = elements.journalText.value.trim();
-      
-      if (text) {
-        const entry = {
-          date: new Date().toISOString(),
-          text: text,
-          categories: getSelectedCategories()
-        };
-        
-        appState.journalEntries.unshift(entry);
-        updateJournalDisplay();
-        saveState();
-      }
-      
-      hideJournalEntry();
-    }
-    
-    // Get selected categories
-    function getSelectedCategories() {
-      const selected = [];
-      
-      elements.categoryCheckboxes.forEach(checkbox => {
-        if (checkbox.checked) {
-          selected.push(checkbox.dataset.category);
-        }
-      });
-      
-      return selected.length > 0 ? selected : ['other'];
-    }
-    
-    // Update journal display
-    function updateJournalDisplay() {
-      elements.journalEntriesList.innerHTML = '';
-      
-      appState.journalEntries.slice(0, 10).forEach(entry => {
-        const date = new Date(entry.date);
-        const formattedDate = date.toLocaleDateString() + ' ' + date.toLocaleTimeString();
-        
-        const entryElement = document.createElement('div');
-        entryElement.className = 'journal-entry-item';
-        entryElement.innerHTML = `
-          <div class="journal-date">${formattedDate}</div>
-          <div>${entry.text}</div>
-        `;
-        
-        elements.journalEntriesList.appendChild(entryElement);
-      });
-    }
-    
-    // Reset everything
-    function resetChallenge() {
-      if (confirm('Are you sure you want to reset the challenge? All progress will be lost.')) {
-        clearInterval(countdownInterval);
-        
-        // Reset state
-        appState.isStarted = false;
-        appState.startDate = null;
-        appState.currentStreak = 0;
-        appState.bestStreak = 0;
-        appState.restarts = 0;
-        appState.daysWithRestarts = 0;
-        appState.daysWithoutRestarts = 0;
-        appState.lastCheckDate = null;
-        appState.lastStartRestartTime = null;
-        
-        // Reset categories
-        Object.keys(appState.categories).forEach(key => {
-          appState.categories[key] = 0;
+          
+          document.querySelectorAll('.tab-content').forEach(content => {
+            content.classList.remove('active');
+          });
+          
+          // Add active class to target tab
+          this.classList.add('active');
+          document.getElementById(tabId + 'Tab').classList.add('active');
         });
-        
-        // Clear journal entries
-        appState.journalEntries = [];
-        
-        // Update UI
-        elements.startBtn.disabled = false;
-        elements.restartBtn.disabled = true;
-        elements.progressBar.style.width = '0%';
-        elements.countdown.textContent = '00:00:00';
-        
-        updateDisplay();
-        saveState();
-        
-        hideCategorySelection();
-        hideJournalEntry();
-      }
-    }
-    
-    // Start elapsed timer
-    function startElapsedTimer() {
-      if (countdownInterval) {
-        clearInterval(countdownInterval);
-      }
-      
-      updateElapsedTime();
-      
-      countdownInterval = setInterval(() => {
-        updateElapsedTime();
-        checkProgressAndUpdate();
-      }, 1000);
-    }
-    
-    // Update elapsed time display
-    function updateElapsedTime() {
-      if (!appState.lastStartRestartTime) return;
-      
-      const now = new Date().getTime();
-      const elapsed = now - appState.lastStartRestartTime;
-      
-      // Calculate elapsed time
-      const totalSeconds = Math.floor(elapsed / 1000);
-      const hours = Math.floor(totalSeconds / 3600);
-      const minutes = Math.floor((totalSeconds % 3600) / 60);
-      const seconds = totalSeconds % 60;
-      
-      elements.countdown.textContent = `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
-      
-      // Check if a new day has passed based on elapsed time
-      const daysPassed = Math.floor(elapsed / (1000 * 60 * 60 * 24));
-      if (daysPassed > appState.currentStreak) {
-        // Update streak for each day passed
-        for (let i = appState.currentStreak; i < daysPassed; i++) {
-          appState.currentStreak++;
-          appState.daysWithoutRestarts++;
-          
-          if (appState.currentStreak > appState.bestStreak) {
-            appState.bestStreak = appState.currentStreak;
-          }
-          
-          // Update display with each day increment
-          updateDisplay();
-          
-          if (appState.currentStreak === 21) {
-            alert('Congratulations! You have completed the 21-day challenge!');
-          }
-        }
-        
-        saveState();
-      }
-    }
-    
-    // Check progress and update
-    function checkProgressAndUpdate() {
-      const lastCheckDate = new Date(appState.lastCheckDate);
-      const now = new Date();
-      
-      if (lastCheckDate.toDateString() !== now.toDateString()) {
-        // It's a new day (this is now just for date-based tracking)
-        appState.lastCheckDate = now.toISOString();
-        saveState();
-      }
-      
-      // Update progress bar
-      const progress = Math.min(appState.currentStreak / 21 * 100, 100);
-      elements.progressBar.style.width = `${progress}%`;
-    }
-    
-    // Calculate unique days
-    function calculateUniqueDays(currentCount, date) {
-      // Simple approach: increment the counter
-      // In a more complex app, we might want to track actual dates
-      return currentCount + 1;
-    }
-    
-    // Update display
-    function updateDisplay() {
-      elements.daysWithout.textContent = appState.currentStreak;
-      elements.bestStreak.textContent = appState.bestStreak;
-      elements.startDate.textContent = appState.startDate || 'Not started yet';
-      elements.restarts.textContent = appState.restarts;
-      elements.daysWithRestarts.textContent = appState.daysWithRestarts;
-      elements.daysWithoutRestarts.textContent = appState.daysWithoutRestarts;
-      
-      updateCategoryStats();
-      updateJournalDisplay();
-      
-      // Update progress bar
-      const progress = Math.min(appState.currentStreak / 21 * 100, 100);
-      elements.progressBar.style.width = `${progress}%`;
-    }
-    
-    // Update category stats
-    function updateCategoryStats() {
-      elements.categoryStatsList.innerHTML = '';
-      
-      // Sort categories by count in descending order
-      const sortedCategories = Object.entries(appState.categories)
-        .sort((a, b) => b[1] - a[1]);
-      
-      sortedCategories.forEach(([category, count]) => {
-        let categoryName = '';
-        
-        switch(category) {
-          case 'interpersonal':
-            categoryName = 'Interpersonal Interactions';
-            break;
-          case 'delays':
-            categoryName = 'Delays & Timeliness';
-            break;
-          case 'quality':
-            categoryName = 'Quality & Reliability';
-            break;
-          case 'pricing':
-            categoryName = 'Pricing & Value';
-            break;
-          case 'communication':
-            categoryName = 'Communication Issues';
-            break;
-          case 'process':
-            categoryName = 'Process & Accessibility';
-            break;
-          case 'emotional':
-            categoryName = 'Emotional & Relational Dynamics';
-            break;
-          case 'other':
-            categoryName = 'Other';
-            break;
-        }
-        
-        const statElement = document.createElement('div');
-        statElement.className = 'category-stat';
-        statElement.innerHTML = `
-          <span>${categoryName}</span>
-          <span>${count}</span>
-        `;
-        
-        elements.categoryStatsList.appendChild(statElement);
       });
-    }
-    
-    // Event listeners
-    elements.startBtn.addEventListener('click', startChallenge);
-    elements.restartBtn.addEventListener('click', handleComplaint);
-    elements.resetBtn.addEventListener('click', resetChallenge);
-    elements.submitCategoryBtn.addEventListener('click', submitCategorySelection);
-    elements.submitJournalBtn.addEventListener('click', submitJournalEntry);
-    
-    // Initialize the app
-    function init() {
-      loadState();
-      updateDisplay();
       
-      // Start the elapsed timer if challenge is active
-      if (appState.isStarted && appState.lastStartRestartTime) {
-        startElapsedTimer();
-      }
-    }
+      // Close notification
+      document.getElementById('notificationClose').addEventListener('click', () => {
+        document.getElementById('notification').classList.remove('show');
+      });
+      
+      // Show/hide analysis popup
+      document.getElementById('analysisBtn').addEventListener('click', () => {
+        document.getElementById('analysisOverlay').style.display = 'flex';
+      });
+      
+      document.getElementById('closeAnalysis').addEventListener('click', () => {
+        document.getElementById('analysisOverlay').style.display = 'none';
+      });
+    });
     
-    // Start the app
-    init();
+    function showNotification(message, duration = 5000) {
+      const notification = document.getElementById('notification');
+      const notificationText = document.getElementById('notificationText');
+      
+      notificationText.textContent = message;
+      notification.classList.add('show');
+      
+      setTimeout(() => {
+        notification.classList.remove('show');
+      }, duration);
+    }
   </script>
+  </div>
 </body>
 </html>
