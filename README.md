@@ -35,25 +35,6 @@ Visit [your-deploy-url-here] from any modern browser.
 2. Click the install button in the address bar (or in the menu)
 3. The app will be installed on your device and can be launched from your home screen
 
-### Option 3: Host it yourself
-
-1. Clone this repository:
-   ```
-   git clone https://github.com/yourusername/21-day-challenge.git
-   ```
-
-2. Navigate to the project directory:
-   ```
-   cd 21-day-challenge
-   ```
-
-3. Serve the files with any HTTP server, for example using Python:
-   ```
-   python -m http.server 8000
-   ```
-
-4. Open your browser and go to `http://localhost:8000`
-
 ## 📖 How to Use
 
 1. **Start the Challenge**: Click the "Start Challenge" button to begin your 21-day journey
